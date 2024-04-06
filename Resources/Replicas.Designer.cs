@@ -59,5 +59,74 @@ namespace QATopics.Resources {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Введите ваш вопрос:.
+        /// </summary>
+        internal static string AskQuestionText {
+            get {
+                return ResourceManager.GetString("AskQuestionText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Введите ваше имя:.
+        /// </summary>
+        internal static string ChangeNameText {
+            get {
+                return ResourceManager.GetString("ChangeNameText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Неизвестная команда..
+        /// </summary>
+        internal static string ErrorCommandText {
+            get {
+                return ResourceManager.GetString("ErrorCommandText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Главное меню:
+        ///1. Отвечать на вопросы.
+        ///2. Задать свой вопрос.
+        ///3. Изменить имя.
+        ///4. Мои вопросы. (Актуальные)
+        ///5. Статистика. (В будущем).
+        /// </summary>
+        internal static string MainMenuText {
+            get {
+                return ResourceManager.GetString("MainMenuText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ***
+        ///1. Ответить.
+        ///2. Хороший вопрос.
+        ///3. Следующий вопрос.
+        ///4. Пожаловаться..
+        /// </summary>
+        internal static string QuestionMenuText {
+            get {
+                return ResourceManager.GetString("QuestionMenuText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Привет!
+        ///
+        ///Здесь ты можешь задать свой вопрос, на который другие люди будут отвечать.
+        ///
+        ///Или ты можешь сам(а) ответить на вопросы других людей и высказать своё мнение!
+        ///
+        ///Самые интересные вопросы попадут в наш телеграм-канал!.
+        /// </summary>
+        internal static string WelcomeText {
+            get {
+                return ResourceManager.GetString("WelcomeText", resourceCulture);
+            }
+        }
     }
 }

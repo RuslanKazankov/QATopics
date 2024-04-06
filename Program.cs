@@ -4,11 +4,18 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
 using QATopics.Helpers;
+using QATopics.Resources;
+using QATopics.Models;
+using QATopics.Models.MenuCommands;
+using Telegram.Bot.Types.ReplyMarkups;
+using QATopics.Models.Menu;
+using QATopics.Services;
 
 namespace QATopics
 {
     internal class Program
     {
+        private static BotUser? admin;
         private static async Task Main(string[] args)
         {
             var botClient = new TelegramBotClient(Config.TelegramBotToken);
@@ -29,6 +36,7 @@ namespace QATopics
             );
 
             var me = await botClient.GetMeAsync();
+            TelegramMessageService.GetInstance().Init(botClient);
 
             Console.WriteLine($"Start listening for @{me.Username}");
             Console.ReadLine();
@@ -48,14 +56,43 @@ namespace QATopics
             if (messageText == null) return;
 
             var chatId = message.Chat.Id;
-
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
-            // Echo received message text
-            Message sentMessage = await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: "You said:\n" + messageText,
-                cancellationToken: cancellationToken);
+            BotUser currentUser;
+            //Проверочка на админа
+            if (chatId == Config.AdminChatId)
+            {
+                admin ??= new BotUser(chatId);
+                currentUser = admin;
+            }
+            else currentUser = new BotUser(chatId);
+            BaseMenu currentMenu = currentUser.GetCurrentMenu();
+            CommandResponse? commandResponse = currentMenu.SendCommand(messageText);
+
+            if (commandResponse == null)
+            {
+                if (messageText == "/start")
+                {
+                    await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
+                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.ErrorCommandText,
+                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+            }
+            else
+            {
+                if (commandResponse.ResultMessage != null)
+                {
+                    await botClient.SendTextMessageAsync(chatId: chatId, text: commandResponse.ResultMessage,
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                currentMenu = commandResponse.NextMenu;
+            }
+            await botClient.SendTextMessageAsync(chatId: chatId, text: currentMenu.GetMenuText(), 
+                replyMarkup: currentMenu.GetRelplyKeyboard(), cancellationToken: cancellationToken);
         }
 
         private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
