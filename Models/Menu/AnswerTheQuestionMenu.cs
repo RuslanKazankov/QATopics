@@ -1,6 +1,6 @@
 ﻿using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
-using QATopics.Resources;
+using QATopics.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +10,16 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QATopics.Models.Menu
 {
-    public class AskQuestion(User user) : BaseMenu(user)
+    public class AnswerTheQuestionMenu(User user) : BaseMenu(user)
     {
-        public override string GetNameOfMenu()
-        {
-            return nameof(AskQuestion);
-        }
         public override string GetMenuText()
         {
-            return Replicas.AskQuestionText;
+            return "Напишите ответ:";
+        }
+
+        public override string GetNameOfMenu()
+        {
+            return nameof(AnswerTheQuestionMenu);
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
@@ -35,11 +36,12 @@ namespace QATopics.Models.Menu
             CommandResponse commandResponse = new CommandResponse(new MainMenu(CurrentUser));
             if (command != "Назад")
             {
-                Question question = new Question() { User = CurrentUser, Text = command, UserId = CurrentUser.Id };
-                CurrentUser.Questions.Add(question);
-                PseudoDB.Questions.Add(question);
-                //TODO: db asqQuestion
-                commandResponse.ResultMessage = "Ваш вопрос добавлен!";
+                Answer answer = new Answer() { Text = command };
+                PseudoDB.Answers.Add(answer);
+                TelegramMessageService.GetInstance().SendMessageToUser(CurrentUser.CurrentQuestion.UserId, answer.Text);
+
+                //TODO: db AnswerTheQuestion
+                commandResponse.ResultMessage = "Ваш ответ добавлен!";
             }
             return commandResponse;
         }

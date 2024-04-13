@@ -135,7 +135,8 @@
 5. Статистика. (В будущем)</value>
   </data>
   <data name="QuestionMenuText" xml:space="preserve">
-    <value>***
+    <value>
+***
 1. Ответить.
 2. Хороший вопрос.
 3. Следующий вопрос.

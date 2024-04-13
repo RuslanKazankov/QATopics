@@ -1,4 +1,5 @@
-﻿using QATopics.Models.MenuCommands;
+﻿using QATopics.Models.Database;
+using QATopics.Models.MenuCommands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QATopics.Models.Menu
 {
-    public class MyQuestions(BotUser botUser) : BaseMenu(botUser)
+    public class MyQuestionsMenu(User user) : BaseMenu(user)
     {
+        public override string GetNameOfMenu()
+        {
+            return nameof(MyQuestionsMenu);
+        }
         public override string GetMenuText()
         {
             return "Напишите номер вопроса чтобы удалить его.\nВаши вопросы:";
@@ -34,7 +39,7 @@ namespace QATopics.Models.Menu
             }
             else
             {
-                commandResponse = new CommandResponse(new MyQuestions(CurrentUser));
+                commandResponse = new CommandResponse(new MyQuestionsMenu(CurrentUser));
                 commandResponse.ResultMessage = "Вопросов пока нет";
             }
             return commandResponse;

@@ -1,4 +1,5 @@
-﻿using QATopics.Models.MenuCommands;
+﻿using QATopics.Models.Database;
+using QATopics.Models.MenuCommands;
 using QATopics.Resources;
 using System;
 using System.Collections.Generic;
@@ -9,8 +10,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QATopics.Models.Menu
 {
-    public class MainMenu(BotUser botUser) : BaseMenu(botUser)
+    public class MainMenu(User user) : BaseMenu(user)
     {
+        public override string GetNameOfMenu()
+        {
+            return nameof(MainMenu);
+        }
         public override string GetMenuText()
         {
             return Replicas.MainMenuText;
