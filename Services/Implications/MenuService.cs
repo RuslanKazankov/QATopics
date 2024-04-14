@@ -17,6 +17,7 @@ namespace QATopics.Services.Implications
                 nameof(MyQuestionsMenu) => new MyQuestionsMenu(menuParams),
                 nameof(QuestionsMenu) => new QuestionsMenu(menuParams),
                 nameof(AnswerTheQuestionMenu) => new AnswerTheQuestionMenu(menuParams),
+                nameof(AnswersOnMyQuestionsMenu) => new AnswersOnMyQuestionsMenu(menuParams),
                 _ => new MainMenu(menuParams),
             };
         }
@@ -30,6 +31,7 @@ namespace QATopics.Services.Implications
                 nameof(MyQuestionsMenu) => new MyQuestionsMenu(menuParams),
                 nameof(QuestionsMenu) => new QuestionsMenu(menuParams),
                 nameof(AnswerTheQuestionMenu) => new AnswerTheQuestionMenu(menuParams),
+                nameof(AnswersOnMyQuestionsMenu) => new AnswersOnMyQuestionsMenu(menuParams),
                 _ => new MainMenu(menuParams),
             };
         }

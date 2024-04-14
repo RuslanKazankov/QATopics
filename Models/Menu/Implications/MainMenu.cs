@@ -31,6 +31,8 @@ namespace QATopics.Models.Menu.Implications
                 new KeyboardButton("2"),
                 new KeyboardButton("3"),
                 new KeyboardButton("4"),
+                new KeyboardButton("5"),
+                new KeyboardButton("6"),
             });
             replyKeyboard.ResizeKeyboard = true;
             return replyKeyboard;
@@ -54,6 +56,14 @@ namespace QATopics.Models.Menu.Implications
             else if (command == "4") //Мои вопросы (Актуальные)
             {
                 commandResponse = new CommandResponse(new MainMenu(this));
+            }
+            else if (command == "5") //Статистика (В будущем)
+            {
+                commandResponse = new CommandResponse(new MainMenu(this));
+            }
+            else if (command == "6") //Ответы
+            {
+                commandResponse = new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
 
             return commandResponse;
