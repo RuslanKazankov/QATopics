@@ -13,7 +13,7 @@ namespace QATopics.Models.MenuCommands
     {
         public BaseMenu NextMenu { get; set; }
         public ReplyKeyboardMarkup? ReplyKeyboard { get; private set; }
-        public string? ResultMessage;
+        public string? ResultMessage { get; set; }
         public CommandResponse(BaseMenu nextMenu)
         {
             NextMenu = nextMenu;
