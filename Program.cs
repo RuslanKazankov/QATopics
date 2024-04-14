@@ -1,24 +1,27 @@
-﻿using Telegram.Bot.Exceptions;
-using Telegram.Bot.Types;
-using Telegram.Bot;
-using Telegram.Bot.Polling;
-using Telegram.Bot.Types.Enums;
-using QATopics.Helpers;
-using QATopics.Resources;
-using QATopics.Models;
-using QATopics.Models.MenuCommands;
-using Telegram.Bot.Types.ReplyMarkups;
-using QATopics.Models.Menu;
-using QATopics.Services;
+﻿using QATopics.Helpers;
 using QATopics.Models.Database;
+using QATopics.Models.Menu;
+using QATopics.Models.Menu.Implications;
+using QATopics.Models.MenuCommands;
+using QATopics.Resources;
+using QATopics.Services;
+using QATopics.Services.Implications;
+using Telegram.Bot;
+using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QATopics
 {
-    internal class Program
+    public class Program
     {
+        private static IMessageService? messageService;
         private static async Task Main(string[] args)
         {
             var botClient = new TelegramBotClient(Config.TelegramBotToken);
+            messageService = new TelegramMessageService(botClient);
 
             using CancellationTokenSource cts = new();
 
@@ -36,7 +39,6 @@ namespace QATopics
             );
 
             var me = await botClient.GetMeAsync();
-            TelegramMessageService.GetInstance().Init(botClient);
 
             Console.WriteLine($"Start listening for @{me.Username}");
             Console.ReadLine();
@@ -72,7 +74,7 @@ namespace QATopics
             }
 
             //Use bot
-            BaseMenu currentMenu = MenuService.GetMenuOfUser(user);
+            BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService);
 
             if (!registration)
             {

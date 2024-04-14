@@ -1,6 +1,7 @@
 ﻿using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Resources;
+using QATopics.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace QATopics.Models.Menu
+namespace QATopics.Models.Menu.Implications
 {
-    public class MainMenu(User user) : BaseMenu(user)
+    public class MainMenu : BaseMenu
     {
+        public MainMenu(IMenuParams menuParams) : base(menuParams) { }
+
         public override string GetNameOfMenu()
         {
             return nameof(MainMenu);
@@ -23,10 +26,10 @@ namespace QATopics.Models.Menu
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            ReplyKeyboardMarkup replyKeyboard = new (new KeyboardButton[] {
+            ReplyKeyboardMarkup replyKeyboard = new(new KeyboardButton[] {
                 new KeyboardButton("1"),
                 new KeyboardButton("2"),
-                new KeyboardButton("3"), 
+                new KeyboardButton("3"),
                 new KeyboardButton("4"),
             });
             replyKeyboard.ResizeKeyboard = true;
@@ -38,19 +41,19 @@ namespace QATopics.Models.Menu
             CommandResponse? commandResponse = null;
             if (command == "1") //Отвечать на вопросы
             {
-                commandResponse = new CommandResponse(new QuestionsMenu(CurrentUser));
+                commandResponse = new CommandResponse(new QuestionsMenu(this));
             }
             else if (command == "2") //Задать свой вопрос
             {
-                commandResponse = new CommandResponse(new AskQuestion(CurrentUser));
+                commandResponse = new CommandResponse(new AskQuestionMenu(this));
             }
             else if (command == "3") //Изменить имя
             {
-                commandResponse = new CommandResponse(new ChangeNameMenu(CurrentUser));
+                commandResponse = new CommandResponse(new ChangeNameMenu(this));
             }
             else if (command == "4") //Мои вопросы (Актуальные)
             {
-                commandResponse = new CommandResponse(new MainMenu(CurrentUser));
+                commandResponse = new CommandResponse(new MainMenu(this));
             }
 
             return commandResponse;

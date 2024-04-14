@@ -1,6 +1,7 @@
 ﻿using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Resources;
+using QATopics.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +9,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace QATopics.Models.Menu
+namespace QATopics.Models.Menu.Implications
 {
-    public class ChangeNameMenu(User user) : BaseMenu(user)
+    public class ChangeNameMenu(IMenuParams menuParams) : BaseMenu(menuParams)
     {
         public override string GetNameOfMenu()
         {
             return nameof(ChangeNameMenu);
         }
+
         public override string GetMenuText()
         {
             return Replicas.ChangeNameText;
@@ -32,10 +34,10 @@ namespace QATopics.Models.Menu
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse commandResponse = new CommandResponse(new MainMenu(CurrentUser));
+            CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
             if (command != "Назад")
             {
-                CurrentUser.Name = command;
+                User.Name = command;
                 commandResponse.ResultMessage = "Ваш имя обновлено!";
             }
             return commandResponse;

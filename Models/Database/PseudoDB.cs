@@ -12,7 +12,8 @@ namespace QATopics.Models.Database
         public static List<Answer> Answers { get; set; } = [];
         public static List<User> Users { get; set; } = [];
         public static List<Question> Questions { get; set; } = [];
-        public static List<Report> Reports { get; set; } = [];
+        public static List<AnswerReport> AnswerReports { get; set; } = [];
+        public static List<QuestionReport> QuestionReports { get; set; } = [];
         public static Question? RandomlyQuestion(User user)
         {
             //List<Question> nouserQuestions = Questions.Where((q) => q.UserId != user.Id).ToList();

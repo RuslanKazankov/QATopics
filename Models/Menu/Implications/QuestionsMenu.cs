@@ -1,6 +1,7 @@
 ﻿using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Resources;
+using QATopics.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace QATopics.Models.Menu
+namespace QATopics.Models.Menu.Implications
 {
-    public class QuestionsMenu(User user) : BaseMenu(user)
+    public class QuestionsMenu(IMenuParams menuParams) : BaseMenu(menuParams)
     {
         public override string GetNameOfMenu()
         {
@@ -19,8 +20,8 @@ namespace QATopics.Models.Menu
 
         public override string GetMenuText()
         {
-            Question? question = PseudoDB.RandomlyQuestion(CurrentUser);
-            CurrentUser.CurrentQuestion = question;
+            Question? question = PseudoDB.RandomlyQuestion(User);
+            User.CurrentQuestion = question;
             if (question == null)
                 return "Вопросиков пока нет(((";
 
@@ -34,7 +35,7 @@ namespace QATopics.Models.Menu
                 new KeyboardButton("2"), //Хороший вопрос
                 new KeyboardButton("3"), //Следующий вопрос
                 new KeyboardButton("4"), //Пожаловаться
-                new KeyboardButton("Назад"), 
+                new KeyboardButton("Назад"),
             });
             replyKeyboard.ResizeKeyboard = true;
             return replyKeyboard;
@@ -44,13 +45,13 @@ namespace QATopics.Models.Menu
         {
             if (command == "1")
             {
-                return new CommandResponse(new AnswerTheQuestionMenu(CurrentUser));
+                return new CommandResponse(new AnswerTheQuestionMenu(this));
             }
             else if (command == "3")
             {
-                return new CommandResponse(new QuestionsMenu(CurrentUser));
+                return new CommandResponse(new QuestionsMenu(this));
             }
-            return new CommandResponse(new MainMenu(CurrentUser));
+            return new CommandResponse(new MainMenu(this));
         }
     }
 }

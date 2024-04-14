@@ -1,6 +1,7 @@
 ﻿using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Services;
+using QATopics.Services.Implications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace QATopics.Models.Menu
+namespace QATopics.Models.Menu.Implications
 {
-    public class AnswerTheQuestionMenu(User user) : BaseMenu(user)
+    public class AnswerTheQuestionMenu(IMenuParams menuParams) : BaseMenu(menuParams)
     {
         public override string GetMenuText()
         {
@@ -33,12 +34,12 @@ namespace QATopics.Models.Menu
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse commandResponse = new CommandResponse(new MainMenu(CurrentUser));
+            CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
             if (command != "Назад")
             {
                 Answer answer = new Answer() { Text = command };
                 PseudoDB.Answers.Add(answer);
-                TelegramMessageService.GetInstance().SendMessageToUser(CurrentUser.CurrentQuestion.UserId, answer.Text);
+                MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, answer.Text);
 
                 //TODO: db AnswerTheQuestion
                 commandResponse.ResultMessage = "Ваш ответ добавлен!";

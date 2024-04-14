@@ -14,6 +14,6 @@ namespace QATopics.Models.Database
         public string? Text { get; set; }
         public int LikeCount { get; set; }
         public List<Answer> Answers { get; set; } = [];
-        public List<Report> Reports { get; set; } = [];
+        public List<QuestionReport> Reports { get; set; } = [];
     }
 }

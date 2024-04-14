@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace QATopics.Models.Database
 {
-    public class Answer
+    public class QuestionReport
     {
         public long Id { get; set; }
         public long QuestionId { get; set; }
         public Question? Question { get; set; }
-        public string? Text { get; set; }
-        public long ResponderId { get; set; }
-        public bool GoodAnswer { get; set; }
+        public string? Reason { get; set; }
     }
 }

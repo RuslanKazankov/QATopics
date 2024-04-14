@@ -121,7 +121,7 @@
     <value>Введите ваш вопрос:</value>
   </data>
   <data name="ChangeNameText" xml:space="preserve">
-    <value>Введите ваше имя:</value>
+    <value>Введите ваше новое имя:</value>
   </data>
   <data name="ErrorCommandText" xml:space="preserve">
     <value>Неизвестная команда.</value>

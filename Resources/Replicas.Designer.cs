@@ -70,7 +70,7 @@ namespace QATopics.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Введите ваше имя:.
+        ///   Ищет локализованную строку, похожую на Введите ваше новое имя:.
         /// </summary>
         internal static string ChangeNameText {
             get {
