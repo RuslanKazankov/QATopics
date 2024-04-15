@@ -18,7 +18,16 @@ namespace QATopics.Models.Menu.Implications
         }
         public override string GetMenuText()
         {
-            return "Напишите номер вопроса чтобы удалить его.\nВаши вопросы:";
+            List<Question> questions = PseudoDB.Questions.Where((q) => q.UserId == User.Id).ToList();
+            StringBuilder sb = new StringBuilder();
+            foreach(Question question in questions)
+            {
+                sb.Append("Вопрос #").AppendLine(question.Id.ToString());
+                sb.AppendLine(question.Text);
+                sb.AppendLine();
+            }
+            sb.AppendLine("Напишите номер вопроса чтобы удалить его.");
+            return sb.ToString();
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
@@ -32,16 +41,25 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse commandResponse;
+            CommandResponse? commandResponse = null;
+            int idOfQuestion = -1;
+            if (int.TryParse(command, out idOfQuestion))
+            {
+                Question? question = PseudoDB.Questions.Where((q) =>  q.UserId == User.Id && q.Id == idOfQuestion).FirstOrDefault();
+                commandResponse = new CommandResponse(new MyQuestionsMenu(this));
+                if (question == null)
+                {
+                    commandResponse.ResultMessage = "Вопрос не найден";
+                }
+                else
+                {
+                    PseudoDB.Questions.Remove(question);
+                    commandResponse.ResultMessage = "Вопрос #" + question.Id + " удалён!";
+                }
+            }
             if (command == "Назад")
             {
-                User.Name = command;
                 commandResponse = new CommandResponse(new MainMenu(this));
-            }
-            else
-            {
-                commandResponse = new CommandResponse(new MyQuestionsMenu(this));
-                commandResponse.ResultMessage = "Вопросов пока нет";
             }
             return commandResponse;
         }

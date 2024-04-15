@@ -37,7 +37,7 @@ namespace QATopics.Models.Menu.Implications
             CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
             if (command != "Назад")
             {
-                Answer answer = new Answer() { Text = command, ResponderId = User.Id, Question = User.CurrentQuestion, QuestionId = User.CurrentQuestion.Id };
+                Answer answer = new Answer() { Id = PseudoDB.Answers.LastOrDefault()?.Id + 1 ?? 0, Text = command, ResponderId = User.Id, Question = User.CurrentQuestion, QuestionId = User.CurrentQuestion.Id };
                 PseudoDB.Answers.Add(answer);
                 MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
 

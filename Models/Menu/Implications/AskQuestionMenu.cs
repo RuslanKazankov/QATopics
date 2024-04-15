@@ -36,7 +36,11 @@ namespace QATopics.Models.Menu.Implications
             CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
             if (command != "Назад")
             {
-                Question question = new Question() { User = User, Text = command, UserId = User.Id };
+                if (User.Questions.Count >= 100)
+                {
+                    commandResponse.ResultMessage = "У вас слишком много вопросов! Попробуйте удалить неактуальные вопросы или подождите, со временем старые вопросы автоматически удаляются!";
+                }
+                Question question = new Question() { Id = PseudoDB.Questions.LastOrDefault()?.Id + 1 ?? 0, User = User, Text = command, UserId = User.Id };
                 User.Questions.Add(question);
                 PseudoDB.Questions.Add(question);
                 //TODO: db asqQuestion

@@ -21,11 +21,11 @@ namespace QATopics.Models.Menu.Implications
         public override string GetMenuText()
         {
             Question? question = PseudoDB.RandomlyQuestion(User);
-            User.CurrentQuestion = question;
             if (question == null)
                 return "Вопросиков пока нет(((";
-
-            return question.Text + Replicas.QuestionMenuText ?? "Походу тут ошибка произошла, сорян, листай дальше =)";
+            
+            User.CurrentQuestion = question;
+            return question.Text + "\n" + Replicas.QuestionMenuText ?? "Походу тут ошибка произошла, сорян, листай дальше =)";
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
@@ -43,14 +43,24 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
+            if (User.CurrentQuestion == null)
+                return new CommandResponse(new MainMenu(this));
+
             if (command == "1")
             {
+                User.CurrentQuestion.LikeCount++;
                 return new CommandResponse(new AnswerTheQuestionMenu(this));
             }
-            else if (command == "3")
+            if (command == "2")
+            {
+                User.CurrentQuestion.LikeCount++;
+                return new CommandResponse(new QuestionsMenu(this));
+            }
+            if (command == "3")
             {
                 return new CommandResponse(new QuestionsMenu(this));
             }
+
             return new CommandResponse(new MainMenu(this));
         }
     }

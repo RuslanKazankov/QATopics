@@ -13,11 +13,16 @@ namespace QATopics.Models.Menu.Implications
             StringBuilder sb = new StringBuilder();
             foreach (Answer answer in answers)
             {
-                sb.AppendLine("Вопрос #" + answer.QuestionId);
-                sb.AppendLine("Вы: " + answer.Question.Text);
-                sb.AppendLine("Ответ: " + answer.Text);
+                if (answer.GoodAnswer)
+                {
+                    sb.Append("⭐ ");
+                }
+                sb.Append("Ответ #").AppendLine(answer.Id.ToString());
+                sb.Append("Ваш вопрос: ").AppendLine(answer.Question.Text);
+                sb.Append("Ответ: ").AppendLine(answer.Text);
                 sb.AppendLine();
             }
+            sb.AppendLine("Напишите номер ответа, чтобы пометить ответ хорошим/снять метку хорошего ответа.");
             return sb.ToString();
         }
 
@@ -37,6 +42,17 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
+            int idOfAnswer = -1;
+            if (int.TryParse(command, out idOfAnswer))
+            {
+                Answer? answer = PseudoDB.Answers.Where((a) => a.Question.UserId == User.Id && a.Id == idOfAnswer).FirstOrDefault();
+                if (answer == null)
+                {
+                    return new CommandResponse(this) { ResultMessage = "Ответ не найден!"};
+                }
+                answer.GoodAnswer = !answer.GoodAnswer;
+                return new CommandResponse(this) { ResultMessage = "Ответ #" + answer.Id + " оценен!" };
+            }
             return new CommandResponse(new MainMenu(this));
         }
     }

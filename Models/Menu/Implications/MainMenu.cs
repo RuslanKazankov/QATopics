@@ -55,7 +55,7 @@ namespace QATopics.Models.Menu.Implications
             }
             else if (command == "4") //Мои вопросы (Актуальные)
             {
-                commandResponse = new CommandResponse(new MainMenu(this));
+                commandResponse = new CommandResponse(new MyQuestionsMenu(this));
             }
             else if (command == "5") //Статистика (В будущем)
             {

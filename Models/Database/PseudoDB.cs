@@ -19,7 +19,7 @@ namespace QATopics.Models.Database
             //List<Question> nouserQuestions = Questions.Where((q) => q.UserId != user.Id).ToList();
             if (Questions.Count > 0)
             {
-                return Questions[random.Next(Questions.Count())];
+                return Questions[random.Next(Questions.Count)];
             }
             return null;
         }
