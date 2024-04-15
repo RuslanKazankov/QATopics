@@ -9,17 +9,7 @@ namespace QATopics.Services.Implications
         public static BaseMenu GetMenuOfUser(User user, IMessageService? messageService)
         {
             IMenuParams menuParams = new MenuParams(user, messageService);
-            return user.CurrentMenu switch
-            {
-                nameof(MainMenu) => new MainMenu(menuParams),
-                nameof(AskQuestionMenu) => new AskQuestionMenu(menuParams),
-                nameof(ChangeNameMenu) => new ChangeNameMenu(menuParams),
-                nameof(MyQuestionsMenu) => new MyQuestionsMenu(menuParams),
-                nameof(QuestionsMenu) => new QuestionsMenu(menuParams),
-                nameof(AnswerTheQuestionMenu) => new AnswerTheQuestionMenu(menuParams),
-                nameof(AnswersOnMyQuestionsMenu) => new AnswersOnMyQuestionsMenu(menuParams),
-                _ => new MainMenu(menuParams),
-            };
+            return GetMenuOfUser(menuParams);
         }
         public static BaseMenu GetMenuOfUser(IMenuParams menuParams)
         {
