@@ -1,4 +1,5 @@
-﻿using QATopics.Models.Database;
+﻿using QATopics.Helpers;
+using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Services;
 using QATopics.Services.Implications;
@@ -25,26 +26,21 @@ namespace QATopics.Models.Menu.Implications
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            ReplyKeyboardMarkup replyKeyboard = new(new KeyboardButton[] {
-                new KeyboardButton("Назад")
-            });
-            replyKeyboard.ResizeKeyboard = true;
-            return replyKeyboard;
+            return new KeyboardBuilder("Назад").BuildKeyboard();
         }
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
-            if (command != "Назад")
-            {
-                Answer answer = new Answer() { Id = PseudoDB.Answers.LastOrDefault()?.Id + 1 ?? 0, Text = command, ResponderId = User.Id, Question = User.CurrentQuestion, QuestionId = User.CurrentQuestion.Id };
-                PseudoDB.Answers.Add(answer);
-                MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
+            if (command == "Назад")
+                return new CommandResponse(new MainMenu(this));
 
-                //TODO: db AnswerTheQuestion
-                commandResponse.ResultMessage = "Ваш ответ добавлен!";
-            }
-            return commandResponse;
+            Answer answer = new Answer() { Id = PseudoDB.Answers.LastOrDefault()?.Id + 1 ?? 0, Text = command, Responder = User, ResponderId = User.Id, Question = User.CurrentQuestion, QuestionId = User.CurrentQuestion.Id };
+            User.CurrentQuestion.Answers.Add(answer);
+            PseudoDB.Answers.Add(answer);
+            MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
+
+            //TODO: db AnswerTheQuestion
+            return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Ваш ответ добавлен!" };
         }
     }
 }

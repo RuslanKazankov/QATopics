@@ -61,6 +61,17 @@ namespace QATopics.Resources {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на 1. Популярные вопросы.
+        ///2. Жалобы на вопросы.
+        ///3. Жалобы на ответы..
+        /// </summary>
+        internal static string AdminMenuText {
+            get {
+                return ResourceManager.GetString("AdminMenuText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Введите ваш вопрос:.
         /// </summary>
         internal static string AskQuestionText {
@@ -113,6 +124,19 @@ namespace QATopics.Resources {
         internal static string QuestionMenuText {
             get {
                 return ResourceManager.GetString("QuestionMenuText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ого... А ты весьма силён для гоблина.
+        ///                           Как, ты не гоблин? 
+        ///          В... ВОЖДЬ? ЭТО ТЫ?
+        ///                     КАК ЖЕ МЫ РАДЫ СНОВА ТЕБЯ ВИДЕТЬ!
+        ///    Прости, что приняли тебя за гоблина, вождь..
+        /// </summary>
+        internal static string WelcomeAdminText {
+            get {
+                return ResourceManager.GetString("WelcomeAdminText", resourceCulture);
             }
         }
         

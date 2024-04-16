@@ -2,6 +2,7 @@
 using QATopics.Models.MenuCommands;
 using QATopics.Resources;
 using QATopics.Services;
+using QATopics.Services.Implications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,10 @@ namespace QATopics.Models.Menu.Implications
         }
         public override string GetMenuText()
         {
-            return Replicas.MainMenuText;
+            string menuText = Replicas.MainMenuText;
+            if (RoleService.IsAdmin(User.Id))
+                menuText += "\n/adminpanel - для админ-меню";
+            return menuText;
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
@@ -40,33 +44,35 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse? commandResponse = null;
             if (command == "1") //Отвечать на вопросы
             {
-                commandResponse = new CommandResponse(new QuestionsMenu(this));
+                return new CommandResponse(new QuestionsMenu(this));
             }
-            else if (command == "2") //Задать свой вопрос
+            if (command == "2") //Задать свой вопрос
             {
-                commandResponse = new CommandResponse(new AskQuestionMenu(this));
+                return new CommandResponse(new AskQuestionMenu(this));
             }
-            else if (command == "3") //Изменить имя
+            if (command == "3") //Изменить имя
             {
-                commandResponse = new CommandResponse(new ChangeNameMenu(this));
+                return new CommandResponse(new ChangeNameMenu(this));
             }
-            else if (command == "4") //Мои вопросы (Актуальные)
+            if (command == "4") //Мои вопросы (Актуальные)
             {
-                commandResponse = new CommandResponse(new MyQuestionsMenu(this));
+                return new CommandResponse(new MyQuestionsMenu(this));
             }
-            else if (command == "5") //Статистика (В будущем)
+            if (command == "5") //Статистика (В будущем)
             {
-                commandResponse = new CommandResponse(new MainMenu(this));
+                return new CommandResponse(new MainMenu(this));
             }
-            else if (command == "6") //Ответы
+            if (command == "6") //Ответы
             {
-                commandResponse = new CommandResponse(new AnswersOnMyQuestionsMenu(this));
+                return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
-
-            return commandResponse;
+            if (command == "/adminpanel" && RoleService.IsAdmin(User.Id))
+            {
+                return new CommandResponse(new AdminMenu(this)) { ResultMessage = Replicas.WelcomeAdminText };
+            }
+            return null;
         }
     }
 }

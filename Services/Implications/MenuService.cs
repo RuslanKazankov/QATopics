@@ -15,13 +15,15 @@ namespace QATopics.Services.Implications
         {
             return menuParams.User.CurrentMenu switch
             {
-                nameof(MainMenu) => new MainMenu(menuParams),
-                nameof(AskQuestionMenu) => new AskQuestionMenu(menuParams),
-                nameof(ChangeNameMenu) => new ChangeNameMenu(menuParams),
-                nameof(MyQuestionsMenu) => new MyQuestionsMenu(menuParams),
-                nameof(QuestionsMenu) => new QuestionsMenu(menuParams),
+                nameof(AdminMenu) => new AdminMenu(menuParams),
                 nameof(AnswerTheQuestionMenu) => new AnswerTheQuestionMenu(menuParams),
                 nameof(AnswersOnMyQuestionsMenu) => new AnswersOnMyQuestionsMenu(menuParams),
+                nameof(AskQuestionMenu) => new AskQuestionMenu(menuParams),
+                nameof(ChangeNameMenu) => new ChangeNameMenu(menuParams),
+                nameof(MainMenu) => new MainMenu(menuParams),
+                nameof(MyQuestionsMenu) => new MyQuestionsMenu(menuParams),
+                nameof(PopularQuestionsMenu) => new PopularQuestionsMenu(menuParams),
+                nameof(QuestionsMenu) => new QuestionsMenu(menuParams),
                 _ => new MainMenu(menuParams),
             };
         }

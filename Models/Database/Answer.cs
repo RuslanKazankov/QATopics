@@ -13,6 +13,7 @@ namespace QATopics.Models.Database
         public Question? Question { get; set; }
         public string? Text { get; set; }
         public long ResponderId { get; set; }
+        public User? Responder { get; set; }
         public bool GoodAnswer { get; set; }
     }
 }

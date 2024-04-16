@@ -1,4 +1,5 @@
-﻿using QATopics.Models.Database;
+﻿using QATopics.Helpers;
+using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Resources;
 using QATopics.Services;
@@ -24,11 +25,7 @@ namespace QATopics.Models.Menu.Implications
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            ReplyKeyboardMarkup replyKeyboard = new(new KeyboardButton[] {
-                new KeyboardButton("Назад")
-            });
-            replyKeyboard.ResizeKeyboard = true;
-            return replyKeyboard;
+            return new KeyboardBuilder("Назад").BuildKeyboard();
         }
 
         public override CommandResponse? SendCommand(string command)

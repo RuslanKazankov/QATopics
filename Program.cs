@@ -63,10 +63,13 @@ namespace QATopics
             //Registration
             Models.Database.User? user = PseudoDB.Users.Where((user) => user.Id == chatId).FirstOrDefault();
             bool registration = false;
-            if (user == null)
+            if (registration = user == null)
             {
-                registration = true;
                 user = new Models.Database.User() { Id = chatId, CurrentMenu = nameof(MainMenu), Name = "Аноним" };
+                if (chatId == Config.AdminChatId)
+                {
+                    RoleService.DoAdmin(chatId);
+                }
                 PseudoDB.Users.Add(user);
                 //TODO: db.SaveChanges();
                 await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
