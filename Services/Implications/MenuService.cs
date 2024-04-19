@@ -16,6 +16,8 @@ namespace QATopics.Services.Implications
             return menuParams.User.CurrentMenu switch
             {
                 nameof(AdminMenu) => new AdminMenu(menuParams),
+                nameof(AnswerReportMenu) => new AnswerReportMenu(menuParams),
+                nameof(AnswerReportsMenu) => new AnswerReportsMenu(menuParams),
                 nameof(AnswerTheQuestionMenu) => new AnswerTheQuestionMenu(menuParams),
                 nameof(AnswersOnMyQuestionsMenu) => new AnswersOnMyQuestionsMenu(menuParams),
                 nameof(AskQuestionMenu) => new AskQuestionMenu(menuParams),
@@ -23,6 +25,8 @@ namespace QATopics.Services.Implications
                 nameof(MainMenu) => new MainMenu(menuParams),
                 nameof(MyQuestionsMenu) => new MyQuestionsMenu(menuParams),
                 nameof(PopularQuestionsMenu) => new PopularQuestionsMenu(menuParams),
+                nameof(QuestionReportMenu) => new QuestionReportMenu(menuParams),
+                nameof(QuestionReportsMenu) => new QuestionReportsMenu(menuParams),
                 nameof(QuestionsMenu) => new QuestionsMenu(menuParams),
                 _ => new MainMenu(menuParams),
             };

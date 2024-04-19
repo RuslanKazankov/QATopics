@@ -119,7 +119,7 @@ namespace QATopics.Resources {
         ///1. Ответить.
         ///2. Хороший вопрос.
         ///3. Следующий вопрос.
-        ///4. Пожаловаться..
+        ///4. Отправить жалобу..
         /// </summary>
         internal static string QuestionMenuText {
             get {

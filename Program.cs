@@ -75,6 +75,10 @@ namespace QATopics
                 await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
                             replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
+            //if (user.Ban)
+            //{
+            //    return;
+            //}
 
             //Use bot
             BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService);

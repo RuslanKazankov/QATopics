@@ -34,7 +34,7 @@ namespace QATopics.Models.Menu.Implications
                 new KeyboardButton("1"), //Ответить
                 new KeyboardButton("2"), //Хороший вопрос
                 new KeyboardButton("3"), //Следующий вопрос
-                new KeyboardButton("4"), //Пожаловаться
+                new KeyboardButton("4"), //Отправить жалобу
                 new KeyboardButton("Назад"),
             });
             replyKeyboard.ResizeKeyboard = true;
@@ -60,7 +60,10 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(new QuestionsMenu(this));
             }
-
+            if (command == "4")
+            {
+                return new CommandResponse(new QuestionReportMenu(this));
+            }
             return new CommandResponse(new MainMenu(this));
         }
     }

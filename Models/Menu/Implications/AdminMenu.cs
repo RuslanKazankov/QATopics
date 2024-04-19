@@ -33,6 +33,14 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(new PopularQuestionsMenu(this));
             }
+            if (command == "2")
+            {
+                return new CommandResponse(new QuestionReportsMenu(this));
+            }
+            if (command == "3")
+            {
+                return new CommandResponse(new AnswerReportsMenu(this));
+            }
             if (command == "Назад")
             {
                 return new CommandResponse(new MainMenu(this));

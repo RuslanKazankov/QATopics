@@ -1,4 +1,5 @@
-﻿using QATopics.Models.Database;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using System.Text;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -17,7 +18,8 @@ namespace QATopics.Models.Menu.Implications
                 {
                     sb.Append("⭐ ");
                 }
-                sb.Append("Ответ #").AppendLine(answer.Id.ToString());
+                sb.Append("Ответ #").Append(answer.Id);
+                sb.Append(" Отправить жалобу /report_").AppendLine(answer.Id.ToString());
                 sb.Append("Ваш вопрос: ").AppendLine(answer.Question.Text);
                 sb.Append("Ответ: ").AppendLine(answer.Text);
                 sb.AppendLine();
@@ -42,8 +44,25 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            int idOfAnswer = -1;
-            if (int.TryParse(command, out idOfAnswer))
+            if (command == "Назад")
+            {
+                return new CommandResponse(new MainMenu(this));
+            }
+            if (command.StartsWith("/report_"))
+            {
+                if (command.Split(' ').Length > 0 && int.TryParse(command.Split('_')[1], out int idOfReport))
+                {
+                    Answer? answer = PseudoDB.Answers.Where((a) => a.Question.UserId == User.Id && a.Id == idOfReport).FirstOrDefault();
+                    if (answer == null)
+                    {
+                        return new CommandResponse(this) { ResultMessage = "Ответ не найден!" };
+                    }
+                    User.AnswerReport = answer;
+                    return new CommandResponse(new AnswerReportMenu(this));
+                }
+                return null;
+            }
+            if (int.TryParse(command, out int idOfAnswer))
             {
                 Answer? answer = PseudoDB.Answers.Where((a) => a.Question.UserId == User.Id && a.Id == idOfAnswer).FirstOrDefault();
                 if (answer == null)
@@ -53,7 +72,7 @@ namespace QATopics.Models.Menu.Implications
                 answer.GoodAnswer = !answer.GoodAnswer;
                 return new CommandResponse(this) { ResultMessage = "Ответ #" + answer.Id + " оценен!" };
             }
-            return new CommandResponse(new MainMenu(this));
+            return null;
         }
     }
 }
