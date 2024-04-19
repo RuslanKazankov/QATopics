@@ -20,7 +20,7 @@ namespace QATopics.Models.Menu.Implications
 
         public override string GetMenuText()
         {
-            return "Ваше текущее имя: " + User.Name + "\n" + Replicas.ChangeNameText;
+            return "✅ Ваше текущее имя: " + User.Name + "\n✏" + Replicas.ChangeNameText;
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()

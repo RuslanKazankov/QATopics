@@ -24,7 +24,7 @@ namespace QATopics.Models.Menu.Implications
             {
                 sb.Append("Вопрос #").AppendLine(question.Id.ToString());
                 sb.AppendLine(question.Text);
-                sb.AppendLine();
+                sb.Append("Лайков: ").AppendLine(question.LikeCount.ToString());
             }
             sb.AppendLine("Напишите номер вопроса чтобы удалить его.");
             return sb.ToString();
@@ -53,6 +53,7 @@ namespace QATopics.Models.Menu.Implications
                 }
                 else
                 {
+                    PseudoDB.Answers.RemoveAll(a => a.Question.Id == question.Id);
                     PseudoDB.Questions.Remove(question);
                     commandResponse.ResultMessage = "Вопрос #" + question.Id + " удалён!";
                 }

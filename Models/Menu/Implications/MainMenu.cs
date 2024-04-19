@@ -1,4 +1,5 @@
-﻿using QATopics.Models.Database;
+﻿using QATopics.Helpers;
+using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Resources;
 using QATopics.Services;
@@ -22,33 +23,25 @@ namespace QATopics.Models.Menu.Implications
         }
         public override string GetMenuText()
         {
-            string menuText = Replicas.MainMenuText;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Привет, ").Append(User.Name).AppendLine(" 🖐\n").Append(Replicas.MainMenuText);
             if (RoleService.IsAdmin(User.Id))
-                menuText += "\n/adminpanel - для админ-меню";
-            return menuText;
+                sb.Append("\n/adminpanel - для админ-меню");
+            return sb.ToString();
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            ReplyKeyboardMarkup replyKeyboard = new(new KeyboardButton[] {
-                new KeyboardButton("1"),
-                new KeyboardButton("2"),
-                new KeyboardButton("3"),
-                new KeyboardButton("4"),
-                new KeyboardButton("5"),
-                new KeyboardButton("6"),
-            });
-            replyKeyboard.ResizeKeyboard = true;
-            return replyKeyboard;
+            return new KeyboardBuilder(["1🔎", "2❓", "3", "4", "5"]).BuildKeyboard();
         }
 
         public override CommandResponse? SendCommand(string command)
         {
-            if (command == "1") //Отвечать на вопросы
+            if (command == "1🔎" || command == "1") //Отвечать на вопросы
             {
                 return new CommandResponse(new QuestionsMenu(this));
             }
-            if (command == "2") //Задать свой вопрос
+            if (command == "2❓" || command == "2") //Задать свой вопрос
             {
                 return new CommandResponse(new AskQuestionMenu(this));
             }
@@ -56,15 +49,11 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(new ChangeNameMenu(this));
             }
-            if (command == "4") //Мои вопросы (Актуальные)
+            if (command == "4") //Мои вопросы
             {
                 return new CommandResponse(new MyQuestionsMenu(this));
             }
-            if (command == "5") //Статистика (В будущем)
-            {
-                return new CommandResponse(new MainMenu(this));
-            }
-            if (command == "6") //Ответы
+            if (command == "5") //Ответы
             {
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }

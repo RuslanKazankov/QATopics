@@ -10,7 +10,7 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            List<Answer> answers = PseudoDB.Answers.Where((a) => a.ResponderId == User.Id).TakeLast(20).ToList();
+            List<Answer> answers = PseudoDB.Answers.Where((a) => a.Question.User.Id == User.Id).TakeLast(20).ToList();
             StringBuilder sb = new StringBuilder();
             foreach (Answer answer in answers)
             {
@@ -19,9 +19,9 @@ namespace QATopics.Models.Menu.Implications
                     sb.Append("⭐ ");
                 }
                 sb.Append("Ответ #").Append(answer.Id);
-                sb.Append(" Отправить жалобу /report_").AppendLine(answer.Id.ToString());
+                sb.Append("        Отправить жалобу /report_").AppendLine(answer.Id.ToString());
                 sb.Append("Ваш вопрос: ").AppendLine(answer.Question.Text);
-                sb.Append("Ответ: ").AppendLine(answer.Text);
+                sb.Append("Ответ от ").Append(answer.Responder.Name).Append(": ").AppendLine(answer.Text);
                 sb.AppendLine();
             }
             sb.AppendLine("Напишите номер ответа, чтобы пометить ответ хорошим/снять метку хорошего ответа.");

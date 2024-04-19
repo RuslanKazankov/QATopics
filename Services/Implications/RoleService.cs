@@ -7,7 +7,7 @@ namespace QATopics.Services.Implications
     {
         public static bool IsAdmin(long userId)
         {
-            return PseudoDB.Admins.Where((a)=>a.UserId == userId).FirstOrDefault() == null;
+            return PseudoDB.Admins.Where((a)=>a.UserId == userId).FirstOrDefault() != null;
         }
 
         public static void DoAdmin(long userId)

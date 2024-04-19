@@ -21,7 +21,7 @@ namespace QATopics.Models.Menu.Implications
                 sb.Append("Вопрос #").Append(question.Id)
                     .Append(" задан ").Append(question.User.Name).Append("#").Append(question.UserId)
                     .Append(" Лайков: ").AppendLine(question.LikeCount.ToString());
-                sb.AppendLine(question.Text);
+                sb.Append("Вопрос: ").AppendLine(question.Text);
                 foreach (Answer answer in question.Answers.Where(a => a.GoodAnswer).TakeLast(10))
                 {
                     sb.Append("    Ответ от ").Append(answer.Responder.Name).Append("#").AppendLine(answer.ResponderId.ToString())

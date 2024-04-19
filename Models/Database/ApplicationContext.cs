@@ -14,6 +14,7 @@ namespace QATopics.Models.Database
         public DbSet<Answer> Answers = null!;
         public DbSet<QuestionReport> QuestionReports = null!;
         public DbSet<AnswerReport> AnswerReports = null!;
+        public DbSet<Admin> Admins = null!;
 
         public ApplicationContext()
         {
