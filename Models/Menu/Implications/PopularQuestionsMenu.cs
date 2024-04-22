@@ -12,11 +12,16 @@ namespace QATopics.Models.Menu.Implications
 {
     public class PopularQuestionsMenu(IMenuParams menuParams) : BaseMenu(menuParams)
     {
+        private const int countQuestionsOnOnePage = 20;
         public override string GetMenuText()
         {
             using ApplicationContext db = new ApplicationContext();
             StringBuilder sb = new StringBuilder("Топ самых популярных вопросов:\n");
-            foreach (Question question in db.Questions.OrderBy(q => q.LikeCount).TakeLast(20))
+            IQueryable<Question> questions = db.Questions.TakeLast(User.Admin!.AdminSettings.CountOfSelectedQuestions)
+                .OrderBy(q => q.LikeCount)
+                .SkipLast(User.Admin.AdminSettings.PageOfPopularQuestionsMenu * countQuestionsOnOnePage)
+                .TakeLast(countQuestionsOnOnePage);
+            foreach (Question question in questions)
             {
                 sb.Append("Вопрос #").Append(question.Id)
                     .Append(" задан ").Append(question.User!.Name).Append("#").Append(question.UserId)
@@ -40,7 +45,16 @@ namespace QATopics.Models.Menu.Implications
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            return new KeyboardBuilder("Назад").BuildKeyboard();
+            KeyboardBuilder keyboardBuilder = new KeyboardBuilder(["Назад"]);
+            if (User.Admin!.AdminSettings.PageOfPopularQuestionsMenu != 0)
+            {
+                keyboardBuilder.AddKeyboardButton("⬅");
+            }
+            if (User.Admin!.AdminSettings.CountOfSelectedQuestions / countQuestionsOnOnePage != User.Admin.AdminSettings.PageOfPopularQuestionsMenu + 1)
+            {
+                keyboardBuilder.AddKeyboardButton("➡");
+            }
+            return keyboardBuilder.BuildKeyboard();
         }
 
         public override CommandResponse? SendCommand(string command)
@@ -48,6 +62,16 @@ namespace QATopics.Models.Menu.Implications
             if (command == "Назад")
             {
                 return new CommandResponse(new AdminMenu(this));
+            }
+            if (command == "⬅")
+            {
+                User.Admin!.AdminSettings.PageOfPopularQuestionsMenu--;
+                return new CommandResponse(this);
+            }
+            if (command == "➡")
+            {
+                User.Admin!.AdminSettings.PageOfPopularQuestionsMenu++;
+                return new CommandResponse(this);
             }
             if (command.StartsWith("/selectquestion_"))
             {

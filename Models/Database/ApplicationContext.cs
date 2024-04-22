@@ -40,7 +40,11 @@ namespace QATopics.Models.Database
 
             User user = new User(Config.AdminChatId, nameof(MainMenu), "Администратор Тайлер");
             modelBuilder.Entity<User>().HasData(user);
-            Admin admin = new Admin(user.Id) { Id = 1 };
+
+            AdminSettings adminSettings = new AdminSettings() { Id = 1};
+            modelBuilder.Entity<AdminSettings>().HasData(adminSettings);
+
+            Admin admin = new Admin(user.Id, adminSettings.Id) { Id = 1 };
             modelBuilder.Entity<Admin>().HasData(admin);
         }
     }
