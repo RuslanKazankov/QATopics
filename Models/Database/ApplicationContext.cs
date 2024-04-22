@@ -1,20 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using QATopics.Helpers;
+using QATopics.Models.Menu.Implications;
 
 namespace QATopics.Models.Database
 {
     public class ApplicationContext : DbContext
     {
-        public DbSet<User> Users = null!;
-        public DbSet<Question> Questions = null!;
-        public DbSet<Answer> Answers = null!;
-        public DbSet<QuestionReport> QuestionReports = null!;
-        public DbSet<AnswerReport> AnswerReports = null!;
-        public DbSet<Admin> Admins = null!;
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Question> Questions { get; set; } = null!;
+        public DbSet<Answer> Answers { get; set; } = null!;
+        public DbSet<QuestionReport> QuestionReports { get; set; } = null!;
+        public DbSet<AnswerReport> AnswerReports { get; set; } = null!;
+        public DbSet<Admin> Admins { get; set; } = null!;
 
         public ApplicationContext()
         {
@@ -23,7 +20,28 @@ namespace QATopics.Models.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=qatopicsdb;Trusted_Connection=True;");
+            optionsBuilder.UseLazyLoadingProxies()
+                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=qatopicsdb;Trusted_Connection=True;");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Questions)
+                .WithOne(q => q.User)
+                .HasForeignKey(q => q.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.CurrentQuestion)
+                .WithOne()
+                .HasForeignKey<User>(u => u.CurrentQuestionId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            User user = new User(Config.AdminChatId, nameof(MainMenu), "Администратор Тайлер");
+            modelBuilder.Entity<User>().HasData(user);
+            Admin admin = new Admin(user.Id) { Id = 1 };
+            modelBuilder.Entity<Admin>().HasData(admin);
         }
     }
 }

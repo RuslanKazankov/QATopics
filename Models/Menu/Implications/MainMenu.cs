@@ -25,7 +25,7 @@ namespace QATopics.Models.Menu.Implications
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("Привет, ").Append(User.Name).AppendLine(" 🖐\n").Append(Replicas.MainMenuText);
-            if (RoleService.IsAdmin(User.Id))
+            if (User.Admin != null)
                 sb.Append("\n/adminpanel - для админ-меню");
             return sb.ToString();
         }
@@ -57,7 +57,7 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
-            if (command == "/adminpanel" && RoleService.IsAdmin(User.Id))
+            if (command == "/adminpanel" && User.Admin != null)
             {
                 return new CommandResponse(new AdminMenu(this)) { ResultMessage = Replicas.WelcomeAdminText };
             }

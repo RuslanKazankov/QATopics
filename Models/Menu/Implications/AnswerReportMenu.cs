@@ -14,11 +14,11 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            if (User.AnswerReport != null)
+            if (User.CurrentAnswer != null)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("Ответ #").AppendLine(User.AnswerReport.Id.ToString())
-                    .Append("Ответ: ").AppendLine(User.AnswerReport.Text);
+                sb.Append("Ответ #").AppendLine(User.CurrentAnswer.Id.ToString())
+                    .Append("Ответ: ").AppendLine(User.CurrentAnswer.Text);
                 sb.Append("Укажите причину жалобы:");
                 return sb.ToString();
             }
@@ -37,18 +37,19 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            if (User.AnswerReport == null)
+            if (User.CurrentAnswer == null)
             {
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this)) { ResultMessage = "Ответ не найден" };
             }
             if (command == "Назад")
             {
-                User.AnswerReport = null;
+                User.CurrentAnswer = null;
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
-            PseudoDB.AnswerReports.Add(new AnswerReport() { Answer = User.AnswerReport, AnswerId = User.AnswerReport.Id, Id = PseudoDB.AnswerReports.LastOrDefault()?.Id + 1 ?? 0, Reason = command });
-            User.Questions.Where(q => User.AnswerReport.Question.Id == q.Id).FirstOrDefault()?.Answers.Remove(User.AnswerReport);
-            User.AnswerReport = null;
+            using ApplicationContext db = new ApplicationContext();
+            db.AnswerReports.Add(new AnswerReport(User.CurrentAnswer.Id, command));
+            db.SaveChanges();
+            User.CurrentAnswer = null;
             return new CommandResponse(new AnswersOnMyQuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
         }
     }

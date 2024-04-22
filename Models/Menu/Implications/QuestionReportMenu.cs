@@ -41,8 +41,15 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(new QuestionsMenu(this));
             }
-            PseudoDB.QuestionReports.Add(new QuestionReport() { Id = PseudoDB.QuestionReports.LastOrDefault()?.Id + 1 ?? 0, Question = User.CurrentQuestion, Reason = command });
-            return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
+            if (User.CurrentQuestion != null)
+            {
+                using ApplicationContext db = new ApplicationContext();
+                QuestionReport questionReport = new QuestionReport(User.CurrentQuestion.Id, command);
+                db.QuestionReports.Add(questionReport);
+                db.SaveChanges();
+                return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
+            }
+            return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Вопрос не найден"};
         }
     }
 }

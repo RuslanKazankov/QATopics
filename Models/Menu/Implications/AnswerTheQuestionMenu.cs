@@ -33,14 +33,17 @@ namespace QATopics.Models.Menu.Implications
         {
             if (command == "Назад")
                 return new CommandResponse(new MainMenu(this));
+            if (User.CurrentQuestion != null)
+            {
+                using ApplicationContext db = new ApplicationContext();
+                Answer answer = new Answer(User.CurrentQuestion.Id, command, User.Id);
+                db.Answers.Add(answer);
+                db.SaveChanges();
 
-            Answer answer = new Answer() { Id = PseudoDB.Answers.LastOrDefault()?.Id + 1 ?? 0, Text = command, Responder = User, ResponderId = User.Id, Question = User.CurrentQuestion, QuestionId = User.CurrentQuestion.Id };
-            User.CurrentQuestion.Answers.Add(answer);
-            PseudoDB.Answers.Add(answer);
-            MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
-
-            //TODO: db AnswerTheQuestion
-            return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Ваш ответ добавлен!" };
+                MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
+                return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Ваш ответ добавлен!" };
+            }
+            return new CommandResponse(new MainMenu(this)) { ResultMessage = "Вопрос не найден" };
         }
     }
 }

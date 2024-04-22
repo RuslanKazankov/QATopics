@@ -14,18 +14,19 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            List<Question> questions = PseudoDB.Questions.OrderBy(q => q.LikeCount).TakeLast(10).ToList();
+            using ApplicationContext db = new ApplicationContext();
             StringBuilder sb = new StringBuilder("Топ самых популярных вопросов:\n");
-            foreach (Question question in questions)
+            foreach (Question question in db.Questions.OrderBy(q => q.LikeCount).TakeLast(20))
             {
                 sb.Append("Вопрос #").Append(question.Id)
-                    .Append(" задан ").Append(question.User.Name).Append("#").Append(question.UserId)
+                    .Append(" задан ").Append(question.User!.Name).Append("#").Append(question.UserId)
                     .Append(" Лайков: ").AppendLine(question.LikeCount.ToString());
                 sb.Append("Вопрос: ").AppendLine(question.Text);
-                foreach (Answer answer in question.Answers.Where(a => a.GoodAnswer).TakeLast(10))
+                sb.Append("Подробнее: /selectquestion_").AppendLine(question.Id.ToString());
+                foreach (Answer answer in question.Answers.Where(a => a.GoodAnswer).TakeLast(5))
                 {
-                    sb.Append("    Ответ от ").Append(answer.Responder.Name).Append("#").AppendLine(answer.ResponderId.ToString())
-                        .AppendLine("    " + answer.Text);
+                    sb.Append("        Ответ от ").Append(answer.User!.Name).Append("#").AppendLine(answer.UserId.ToString())
+                        .AppendLine("        " + answer.Text);
                 }
                 sb.AppendLine();
             }
@@ -44,7 +45,21 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            return new CommandResponse(new MainMenu(this));
+            if (command == "Назад")
+            {
+                return new CommandResponse(new AdminMenu(this));
+            }
+            if (command.StartsWith("/selectquestion_"))
+            {
+                if (int.TryParse(command.Split('_')[1], out int questionId))
+                {
+                    using ApplicationContext db = new ApplicationContext();
+                    User.CurrentQuestion = db.Questions.Where(q => q.Id == questionId).FirstOrDefault();
+                    return new CommandResponse(new AnswersOfQuestionAdminMenu(this));
+                }
+                return new CommandResponse(this) { ResultMessage = "Вопрос не найден"};
+            }
+            return null;
         }
     }
 }

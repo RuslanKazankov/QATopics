@@ -14,6 +14,7 @@ namespace QATopics.Models.Menu.Implications
 {
     public class QuestionsMenu(IMenuParams menuParams) : BaseMenu(menuParams)
     {
+        private Random random = new Random();
         public override string GetNameOfMenu()
         {
             return nameof(QuestionsMenu);
@@ -21,7 +22,9 @@ namespace QATopics.Models.Menu.Implications
 
         public override string GetMenuText()
         {
-            Question? question = PseudoDB.RandomlyQuestion(User);
+            using ApplicationContext db = new ApplicationContext();
+            long randomId = random.NextInt64(db.Questions.LongCount());
+            Question? question = db.Questions.Where(q => q.Id == randomId).FirstOrDefault();
             if (question == null)
                 return "Вопросов пока нет.";
             

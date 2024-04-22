@@ -19,6 +19,7 @@ namespace QATopics.Services.Implications
                 nameof(AnswerReportMenu) => new AnswerReportMenu(menuParams),
                 nameof(AnswerReportsMenu) => new AnswerReportsMenu(menuParams),
                 nameof(AnswerTheQuestionMenu) => new AnswerTheQuestionMenu(menuParams),
+                nameof(AnswersOfQuestionAdminMenu) => new AnswersOfQuestionAdminMenu(menuParams),
                 nameof(AnswersOnMyQuestionsMenu) => new AnswersOnMyQuestionsMenu(menuParams),
                 nameof(AskQuestionMenu) => new AskQuestionMenu(menuParams),
                 nameof(ChangeNameMenu) => new ChangeNameMenu(menuParams),

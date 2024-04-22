@@ -18,9 +18,9 @@ namespace QATopics.Models.Menu.Implications
         }
         public override string GetMenuText()
         {
-            List<Question> questions = PseudoDB.Questions.Where((q) => q.UserId == User.Id).ToList();
+            using ApplicationContext db = new ApplicationContext();
             StringBuilder sb = new StringBuilder();
-            foreach(Question question in questions)
+            foreach(Question question in db.Questions.Where(q => q.UserId == User.Id))
             {
                 sb.Append("Вопрос #").AppendLine(question.Id.ToString());
                 sb.AppendLine(question.Text);
@@ -45,7 +45,8 @@ namespace QATopics.Models.Menu.Implications
             int idOfQuestion = -1;
             if (int.TryParse(command, out idOfQuestion))
             {
-                Question? question = PseudoDB.Questions.Where((q) =>  q.UserId == User.Id && q.Id == idOfQuestion).FirstOrDefault();
+                using ApplicationContext db = new ApplicationContext();
+                Question? question = db.Questions.Where((q) =>  q.UserId == User.Id && q.Id == idOfQuestion).FirstOrDefault();
                 commandResponse = new CommandResponse(new MyQuestionsMenu(this));
                 if (question == null)
                 {
@@ -53,8 +54,8 @@ namespace QATopics.Models.Menu.Implications
                 }
                 else
                 {
-                    PseudoDB.Answers.RemoveAll(a => a.Question.Id == question.Id);
-                    PseudoDB.Questions.Remove(question);
+                    db.Questions.Remove(question);
+                    db.SaveChanges();
                     commandResponse.ResultMessage = "Вопрос #" + question.Id + " удалён!";
                 }
             }

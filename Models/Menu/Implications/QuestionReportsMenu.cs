@@ -15,11 +15,13 @@ namespace QATopics.Models.Menu.Implications
         public override string GetMenuText()
         {
             StringBuilder sb = new StringBuilder("Жалобы на вопросы: ");
-            foreach (QuestionReport qreport in PseudoDB.QuestionReports.TakeLast(20))
+            using ApplicationContext db = new ApplicationContext();
+            foreach (QuestionReport qreport in db.QuestionReports.TakeLast(20))
             {
-                sb.Append("Вопрос #").AppendLine(qreport.Question.Id.ToString())
+                sb.Append("Вопрос #").AppendLine(qreport.Question!.Id.ToString())
                     .Append("Вопрос: ").AppendLine(qreport.Question.Text);
                 sb.Append("Причина: ").AppendLine(qreport.Reason);
+                sb.Append("Количество подтверждённых жалоб на пользователя: ").AppendLine(qreport.Question.User!.ReportsCount.ToString());
                 sb.Append("Отказать в жалобе: /cancelreport_").AppendLine(qreport.Id.ToString())
                     .Append("Принять жалобу: /acceptreport_").AppendLine(qreport.Id.ToString())
                     .Append("Бан: /ban_").AppendLine(qreport.Id.ToString());
@@ -45,31 +47,59 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command.StartsWith("/cancelreport_"))
             {
-                int qrId = int.Parse(command.Split('_')[1]);
-                QuestionReport qreport = PseudoDB.QuestionReports.Where(qr => qr.Id == qrId).FirstOrDefault();
-                PseudoDB.QuestionReports.Remove(qreport);
-                return new CommandResponse(new AdminMenu(this));
+                if (int.TryParse(command.Split('_')[1], out int qrId))
+                {
+                    using ApplicationContext db = new ApplicationContext();
+                    QuestionReport? qreport = db.QuestionReports.Where(qr => qr.Id == qrId).FirstOrDefault();
+                    if (qreport != null)
+                    {
+                        db.QuestionReports.Remove(qreport);
+                        db.SaveChanges();
+                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
+                    }
+                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена" };
+                }
+                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос" };
             }
             if (command.StartsWith("/acceptreport"))
             {
-                int qrId = int.Parse(command.Split('_')[1]);
-                QuestionReport qreport = PseudoDB.QuestionReports.Where(qr => qr.Id == qrId).FirstOrDefault();
-                PseudoDB.Users.Where(u => u.Id == qreport.Question.User.Id).FirstOrDefault().ReportsCount++;
-                PseudoDB.Questions.Remove(qreport.Question);
-                PseudoDB.QuestionReports.Remove(qreport);
-                return new CommandResponse(new AdminMenu(this));
+                if (int.TryParse(command.Split('_')[1], out int qrId))
+                {
+                    using ApplicationContext db = new ApplicationContext();
+                    QuestionReport? qreport = db.QuestionReports.Where(qr => qr.Id == qrId).FirstOrDefault();
+                    if (qreport != null)
+                    {
+                        db.Users.Where(u => u.Id == qreport.Question!.UserId).FirstOrDefault()!.ReportsCount++;
+                        db.Questions.Remove(qreport.Question!);
+                        db.SaveChanges();
+                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
+                    }
+                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена" };
+                }
+                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос" };
             }
             if (command.StartsWith("/ban"))
             {
-                int qrId = int.Parse(command.Split('_')[1]);
-                QuestionReport qreport = PseudoDB.QuestionReports.Where(qr => qr.Id == qrId).FirstOrDefault();
-                PseudoDB.Users.Where(u => u.Id == qreport.Question.User.Id).FirstOrDefault().ReportsCount++;
-                PseudoDB.Users.Where(u => u.Id == qreport.Question.User.Id).FirstOrDefault().Ban = true;
-                PseudoDB.Questions.RemoveAll(q=> q.User.Id == qreport.Question.User.Id);
-                PseudoDB.Answers.RemoveAll(a=> a.Responder.Id == qreport.Question.User.Id);
-                PseudoDB.QuestionReports.RemoveAll(qr => qr.Question.User.Id == qreport.Question.User.Id);
-                MessageService.SendMessageAsync(qreport.Question.User.Id, "You have been banned.");
-                return new CommandResponse(new AdminMenu(this));
+                if (int.TryParse(command.Split('_')[1], out int qrId))
+                {
+                    using ApplicationContext db = new ApplicationContext();
+                    QuestionReport? qreport = db.QuestionReports.Where(qr => qr.Id == qrId).FirstOrDefault();
+                    if (qreport != null)
+                    {
+                        qreport.Question!.User!.ReportsCount++;
+                        qreport.Question.User.Ban = true;
+                        var questions = db.Questions.Where(q => q.UserId == qreport.Question.UserId);
+                        var answers = db.Answers.Where(q => q.UserId == qreport.Question.UserId);
+                        db.Questions.RemoveRange(questions);
+                        db.Answers.RemoveRange(answers);
+                        db.SaveChanges();
+
+                        MessageService?.SendMessageAsync(qreport.Question.UserId, "You have been banned.");
+                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
+                    }
+                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена" };
+                }
+                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос" };
             }
             return null;
         }

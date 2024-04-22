@@ -60,25 +60,23 @@ namespace QATopics
             var chatId = message.Chat.Id;
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
+            using ApplicationContext db = new ApplicationContext();
+
             //Registration
-            Models.Database.User? user = PseudoDB.Users.Where((user) => user.Id == chatId).FirstOrDefault();
+            Models.Database.User? user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
             bool registration = false;
             if (registration = user == null)
             {
-                user = new Models.Database.User() { Id = chatId, CurrentMenu = nameof(MainMenu), Name = "Аноним" };
-                if (chatId == Config.AdminChatId)
-                {
-                    RoleService.DoAdmin(chatId);
-                }
-                PseudoDB.Users.Add(user);
-                //TODO: db.SaveChanges();
+                user = new Models.Database.User(chatId, nameof(MainMenu));
+                db.Users.Add(user);
+                db.SaveChanges();
                 await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
                             replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
-            //if (user.Ban)
-            //{
-            //    return;
-            //}
+            if (user!.Ban)
+            {
+                return;
+            }
 
             //Use bot
             BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService);
@@ -100,10 +98,12 @@ namespace QATopics
                     }
                     currentMenu = commandResponse.NextMenu;
                     user.CurrentMenu = currentMenu.GetNameOfMenu();
+                    db.SaveChanges();
                 }
             }
             await botClient.SendTextMessageAsync(chatId: chatId, text: currentMenu.GetMenuText(), 
                 replyMarkup: currentMenu.GetRelplyKeyboard(), cancellationToken: cancellationToken);
+            db.SaveChanges();
         }
 
         private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

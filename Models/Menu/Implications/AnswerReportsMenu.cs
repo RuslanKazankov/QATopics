@@ -15,13 +15,15 @@ namespace QATopics.Models.Menu.Implications
         public override string GetMenuText()
         {
             StringBuilder sb = new StringBuilder("Жалобы на ответы: ");
-            foreach (AnswerReport areport in PseudoDB.AnswerReports.TakeLast(10))
+            using ApplicationContext db = new ApplicationContext();
+            foreach (AnswerReport areport in db.AnswerReports.TakeLast(10))
             {
-                sb.Append("Вопрос #").AppendLine(areport.Answer.Question.Id.ToString())
+                sb.Append("Вопрос #").AppendLine(areport.Answer!.Question!.Id.ToString())
                     .Append("Вопрос: ").AppendLine(areport.Answer.Question.Text);
                 sb.Append("Ответ #").AppendLine(areport.Answer.Id.ToString())
                     .Append("Ответ: ").AppendLine(areport.Answer.Text);
                 sb.Append("Причина: ").AppendLine(areport.Reason);
+                sb.Append("Количество подтверждённых жалоб на пользователя: ").AppendLine(areport.Answer.User!.ReportsCount.ToString());
                 sb.Append("Отказать в жалобе: /cancelreport_").AppendLine(areport.Id.ToString())
                     .Append("Принять жалобу: /acceptreport_").AppendLine(areport.Id.ToString())
                     .Append("Бан: /ban_").AppendLine(areport.Id.ToString());
@@ -47,27 +49,58 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command.StartsWith("/cancelreport_"))
             {
-                PseudoDB.AnswerReports.Remove(PseudoDB.AnswerReports.Where(ar => ar.Id == int.Parse(command.Split('_')[1])).FirstOrDefault());
-                return new CommandResponse(new AdminMenu(this));
+                if (int.TryParse(command.Split('_')[1], out int ansrepId))
+                {
+                    using ApplicationContext db = new ApplicationContext();
+                    AnswerReport? answerReport = db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
+                    if (answerReport != null)
+                    {
+                        db.AnswerReports.Remove(answerReport);
+                        db.SaveChanges();
+                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
+                    }
+                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена"};
+                }
+                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос"};
             }
             if (command.StartsWith("/acceptreport_"))
             {
-                AnswerReport ar = PseudoDB.AnswerReports.Where(ar => ar.Id == int.Parse(command.Split('_')[1])).FirstOrDefault();
-                PseudoDB.Users.Where(u => u.Id == ar.Answer.Responder.Id).FirstOrDefault().ReportsCount++;
-                PseudoDB.Answers.Remove(PseudoDB.Answers.Where(a => a.Id == ar.Answer.Id).FirstOrDefault());
-                PseudoDB.AnswerReports.RemoveAll(arw => ar.Answer.Id == arw.Answer.Id);
-                return new CommandResponse(new AdminMenu(this));
+                if (int.TryParse(command.Split('_')[1], out int ansrepId))
+                {
+                    using ApplicationContext db = new ApplicationContext();
+                    AnswerReport? ar = db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
+                    if (ar != null)
+                    {
+                        ar.Answer!.User!.ReportsCount++;
+                        db.Answers.Remove(ar.Answer);
+                        db.SaveChanges();
+                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба принята" };
+                    }
+                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена"};
+                }
+                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос"};
             }
             if (command.StartsWith("/ban_"))
             {
-                AnswerReport ar = PseudoDB.AnswerReports.Where(ar => ar.Id == int.Parse(command.Split('_')[1])).FirstOrDefault();
-                PseudoDB.Users.Where(u => u.Id == ar.Answer.Responder.Id).FirstOrDefault().ReportsCount++;
-                PseudoDB.Users.Where(u => u.Id == ar.Answer.Responder.Id).FirstOrDefault().Ban = true;
-                PseudoDB.Questions.RemoveAll(a => a.User.Id == ar.Answer.Responder.Id);
-                PseudoDB.Answers.RemoveAll(a => a.Responder.Id == ar.Answer.Responder.Id);
-                PseudoDB.AnswerReports.RemoveAll(a => a.Answer.Responder.Id == ar.Answer.Responder.Id);
-                MessageService.SendMessageAsync(ar.Answer.Responder.Id, "You have been banned.");
-                return new CommandResponse(new AdminMenu(this));
+                if (int.TryParse(command.Split('_')[1], out int ansrepId))
+                {
+                    using ApplicationContext db = new ApplicationContext();
+                    AnswerReport? ar = db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
+                    if (ar != null)
+                    {
+                        ar.Answer!.User!.ReportsCount++;
+                        ar.Answer.User.Ban = true;
+                        var questions = db.Questions.Where(q => q.UserId == ar.Answer.UserId);
+                        db.Questions.RemoveRange(questions);
+                        var answers = db.Answers.Where(a => a.UserId == ar.Answer.UserId);
+                        db.Answers.RemoveRange(answers);
+                        db.SaveChanges();
+                        MessageService?.SendMessageAsync(ar.Answer.UserId, "You have been banned.");
+                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Пользователь забанен"};
+                    }
+                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена" };
+                }
+                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос" };
             }
             return null;
         }
