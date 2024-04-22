@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace QATopics.Models.Database
 {
+    [Obsolete("Not used any more", true)]
     public static class PseudoDB
     {
         private static Random random = new Random();
