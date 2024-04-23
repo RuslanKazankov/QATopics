@@ -6,9 +6,9 @@ namespace QATopics.Services.Implications
 {
     public class MenuService
     {
-        public static BaseMenu GetMenuOfUser(User user, IMessageService? messageService)
+        public static BaseMenu GetMenuOfUser(User user, IMessageService? messageService, ApplicationContext db)
         {
-            IMenuParams menuParams = new MenuParams(user, messageService);
+            IMenuParams menuParams = new MenuParams(user, messageService, db);
             return GetMenuOfUser(menuParams);
         }
         public static BaseMenu GetMenuOfUser(IMenuParams menuParams)

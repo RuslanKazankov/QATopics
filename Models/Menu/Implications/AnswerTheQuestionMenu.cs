@@ -35,12 +35,12 @@ namespace QATopics.Models.Menu.Implications
                 return new CommandResponse(new MainMenu(this));
             if (User.CurrentQuestion != null)
             {
-                using ApplicationContext db = new ApplicationContext();
                 Answer answer = new Answer(User.CurrentQuestion.Id, command, User.Id);
-                db.Answers.Add(answer);
-                db.SaveChanges();
+                Db.Answers.Add(answer);
 
                 MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
+
+                User.CurrentQuestion = null;
                 return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Ваш ответ добавлен!" };
             }
             return new CommandResponse(new MainMenu(this)) { ResultMessage = "Вопрос не найден" };

@@ -18,9 +18,8 @@ namespace QATopics.Models.Menu.Implications
         }
         public override string GetMenuText()
         {
-            using ApplicationContext db = new ApplicationContext();
             StringBuilder sb = new StringBuilder();
-            foreach(Question question in db.Questions.Where(q => q.UserId == User.Id))
+            foreach(Question question in Db.Questions.Where(q => q.UserId == User.Id))
             {
                 sb.Append("Вопрос #").AppendLine(question.Id.ToString());
                 sb.AppendLine(question.Text);
@@ -45,8 +44,7 @@ namespace QATopics.Models.Menu.Implications
             int idOfQuestion = -1;
             if (int.TryParse(command, out idOfQuestion))
             {
-                using ApplicationContext db = new ApplicationContext();
-                Question? question = db.Questions.Where((q) =>  q.UserId == User.Id && q.Id == idOfQuestion).FirstOrDefault();
+                Question? question = Db.Questions.Where((q) =>  q.UserId == User.Id && q.Id == idOfQuestion).FirstOrDefault();
                 commandResponse = new CommandResponse(new MyQuestionsMenu(this));
                 if (question == null)
                 {
@@ -54,8 +52,8 @@ namespace QATopics.Models.Menu.Implications
                 }
                 else
                 {
-                    db.Questions.Remove(question);
-                    db.SaveChanges();
+                    Db.Questions.Remove(question);
+                    Db.SaveChanges();
                     commandResponse.ResultMessage = "Вопрос #" + question.Id + " удалён!";
                 }
             }

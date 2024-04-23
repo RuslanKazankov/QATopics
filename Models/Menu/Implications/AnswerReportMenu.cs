@@ -46,9 +46,8 @@ namespace QATopics.Models.Menu.Implications
                 User.CurrentAnswer = null;
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
-            using ApplicationContext db = new ApplicationContext();
-            db.AnswerReports.Add(new AnswerReport(User.CurrentAnswer.Id, command));
-            db.SaveChanges();
+            Db.AnswerReports.Add(new AnswerReport(User.CurrentAnswer.Id, command));
+            Db.SaveChanges();
             User.CurrentAnswer = null;
             return new CommandResponse(new AnswersOnMyQuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
         }

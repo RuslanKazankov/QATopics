@@ -33,15 +33,14 @@ namespace QATopics.Models.Menu.Implications
             CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
             if (command != "Назад")
             {
-                if (User.Questions.Count >= 1000)
+                if (User.Questions.Count >= 100)
                 {
                     commandResponse.ResultMessage = "У вас слишком много вопросов! Попробуйте удалить неактуальные вопросы.";
                     return commandResponse;
                 }
-                using ApplicationContext db = new ApplicationContext();
                 Question question = new Question(User.Id, command);
-                db.Questions.Add(question);
-                db.SaveChanges();
+                Db.Questions.Add(question);
+                Db.SaveChanges();
                 commandResponse.ResultMessage = "Ваш вопрос добавлен!";
             }
             return commandResponse;

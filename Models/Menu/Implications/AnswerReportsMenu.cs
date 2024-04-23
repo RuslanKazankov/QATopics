@@ -15,8 +15,7 @@ namespace QATopics.Models.Menu.Implications
         public override string GetMenuText()
         {
             StringBuilder sb = new StringBuilder("Жалобы на ответы: ");
-            using ApplicationContext db = new ApplicationContext();
-            foreach (AnswerReport areport in db.AnswerReports.TakeLast(10))
+            foreach (AnswerReport areport in Db.AnswerReports.OrderByDescending(a => a.Id).Take(10))
             {
                 sb.Append("Вопрос #").AppendLine(areport.Answer!.Question!.Id.ToString())
                     .Append("Вопрос: ").AppendLine(areport.Answer.Question.Text);
@@ -51,12 +50,11 @@ namespace QATopics.Models.Menu.Implications
             {
                 if (int.TryParse(command.Split('_')[1], out int ansrepId))
                 {
-                    using ApplicationContext db = new ApplicationContext();
-                    AnswerReport? answerReport = db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
+                    AnswerReport? answerReport = Db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
                     if (answerReport != null)
                     {
-                        db.AnswerReports.Remove(answerReport);
-                        db.SaveChanges();
+                        Db.AnswerReports.Remove(answerReport);
+                        Db.SaveChanges();
                         return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
                     }
                     return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена"};
@@ -67,13 +65,12 @@ namespace QATopics.Models.Menu.Implications
             {
                 if (int.TryParse(command.Split('_')[1], out int ansrepId))
                 {
-                    using ApplicationContext db = new ApplicationContext();
-                    AnswerReport? ar = db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
+                    AnswerReport? ar = Db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
                     if (ar != null)
                     {
                         ar.Answer!.User!.ReportsCount++;
-                        db.Answers.Remove(ar.Answer);
-                        db.SaveChanges();
+                        Db.Answers.Remove(ar.Answer);
+                        Db.SaveChanges();
                         return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба принята" };
                     }
                     return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена"};
@@ -84,17 +81,16 @@ namespace QATopics.Models.Menu.Implications
             {
                 if (int.TryParse(command.Split('_')[1], out int ansrepId))
                 {
-                    using ApplicationContext db = new ApplicationContext();
-                    AnswerReport? ar = db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
+                    AnswerReport? ar = Db.AnswerReports.Where(ar => ar.Id == ansrepId).FirstOrDefault();
                     if (ar != null)
                     {
                         ar.Answer!.User!.ReportsCount++;
                         ar.Answer.User.Ban = true;
-                        var questions = db.Questions.Where(q => q.UserId == ar.Answer.UserId);
-                        db.Questions.RemoveRange(questions);
-                        var answers = db.Answers.Where(a => a.UserId == ar.Answer.UserId);
-                        db.Answers.RemoveRange(answers);
-                        db.SaveChanges();
+                        var questions = Db.Questions.Where(q => q.UserId == ar.Answer.UserId);
+                        Db.Questions.RemoveRange(questions);
+                        var answers = Db.Answers.Where(a => a.UserId == ar.Answer.UserId);
+                        Db.Answers.RemoveRange(answers);
+                        Db.SaveChanges();
                         MessageService?.SendMessageAsync(ar.Answer.UserId, "You have been banned.");
                         return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Пользователь забанен"};
                     }

@@ -10,9 +10,8 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            using ApplicationContext db = new ApplicationContext();
             StringBuilder sb = new StringBuilder();
-            foreach (var answer in db.Answers.Where(a => a.Question!.UserId == User.Id).TakeLast(20))
+            foreach (var answer in Db.Answers.OrderByDescending(a => a.Id).Where(a => a.Question!.UserId == User.Id).Take(20))
             {
                 if (answer.GoodAnswer)
                 {
@@ -52,8 +51,7 @@ namespace QATopics.Models.Menu.Implications
             {
                 if (command.Split('_').Length > 0 && int.TryParse(command.Split('_')[1], out int idOfReport))
                 {
-                    using ApplicationContext db = new ApplicationContext();
-                    Answer? answer = db.Answers.Where((a) => a.Question!.UserId == User.Id && a.Id == idOfReport).FirstOrDefault();
+                    Answer? answer = Db.Answers.Where((a) => a.Question!.UserId == User.Id && a.Id == idOfReport).FirstOrDefault();
                     if (answer == null)
                     {
                         return new CommandResponse(this) { ResultMessage = "Ответ не найден!" };
@@ -65,14 +63,13 @@ namespace QATopics.Models.Menu.Implications
             }
             if (int.TryParse(command, out int idOfAnswer))
             {
-                using ApplicationContext db = new ApplicationContext();
-                Answer? answer = db.Answers.Where((a) => a.Question!.UserId == User.Id && a.Id == idOfAnswer).FirstOrDefault();
+                Answer? answer = Db.Answers.Where((a) => a.Question!.UserId == User.Id && a.Id == idOfAnswer).FirstOrDefault();
                 if (answer == null)
                 {
                     return new CommandResponse(this) { ResultMessage = "Ответ не найден!"};
                 }
                 answer.GoodAnswer = !answer.GoodAnswer;
-                db.SaveChanges();
+                Db.SaveChanges();
                 return new CommandResponse(this) { ResultMessage = "Ответ #" + answer.Id + " оценен!" };
             }
             return null;

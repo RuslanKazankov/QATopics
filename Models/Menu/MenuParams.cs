@@ -10,9 +10,10 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QATopics.Models.Menu
 {
-    public class MenuParams(User user, IMessageService? messageService) : IMenuParams
+    public class MenuParams(User user, IMessageService? messageService, ApplicationContext db) : IMenuParams
     {
         public User User => user;
         public IMessageService? MessageService => messageService;
+        public ApplicationContext Db => db;
     }
 }

@@ -7,8 +7,8 @@ namespace QATopics.Services.Implications
     {
         public static bool IsAdmin(long userId)
         {
-            using ApplicationContext db = new ApplicationContext();
-            return db.Admins.Where(a => a.UserId == userId).FirstOrDefault() != null;
+            using ApplicationContext Db = new ApplicationContext();
+            return Db.Admins.Where(a => a.UserId == userId).FirstOrDefault() != null;
         }
     }
 }

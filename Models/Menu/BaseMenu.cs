@@ -5,11 +5,11 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QATopics.Models.Menu
 {
-    public abstract class BaseMenu(User user, IMessageService? messageService) : IMenuParams
+    public abstract class BaseMenu(IMenuParams menuParams) : IMenuParams
     {
-        public BaseMenu(IMenuParams menuParams) : this(menuParams.User, menuParams.MessageService) { }
-        public User User { get; } = user;
-        public IMessageService? MessageService { get; } = messageService;
+        public User User { get; } = menuParams.User;
+        public IMessageService? MessageService { get; } = menuParams.MessageService;
+        public ApplicationContext Db { get; } = menuParams.Db;
         public abstract string GetNameOfMenu();
         public abstract string GetMenuText();
         public abstract CommandResponse? SendCommand(string command);

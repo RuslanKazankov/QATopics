@@ -38,6 +38,12 @@ namespace QATopics.Models.Database
                 .HasForeignKey<User>(u => u.CurrentQuestionId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.CurrentAnswer)
+                .WithOne()
+                .HasForeignKey<User>(u => u.CurrentAnswerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             User user = new User(Config.AdminChatId, nameof(MainMenu), "Администратор Тайлер");
             modelBuilder.Entity<User>().HasData(user);
 

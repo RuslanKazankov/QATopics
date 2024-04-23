@@ -60,11 +60,12 @@ namespace QATopics
             var chatId = message.Chat.Id;
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
-            using ApplicationContext db = new ApplicationContext();
-
-            //Registration
-            Models.Database.User? user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
+            Models.Database.User? user;
             bool registration = false;
+
+            using ApplicationContext db = new ApplicationContext();
+            user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
+            //Registration
             if (registration = user == null)
             {
                 user = new Models.Database.User(chatId, nameof(MainMenu));
@@ -77,9 +78,8 @@ namespace QATopics
             {
                 return;
             }
-
             //Use bot
-            BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService);
+            BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService, db);
 
             if (!registration)
             {

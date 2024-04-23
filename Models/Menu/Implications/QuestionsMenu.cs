@@ -22,9 +22,13 @@ namespace QATopics.Models.Menu.Implications
 
         public override string GetMenuText()
         {
-            using ApplicationContext db = new ApplicationContext();
-            long randomId = random.NextInt64(db.Questions.LongCount());
-            Question? question = db.Questions.Where(q => q.Id == randomId).FirstOrDefault();
+            Question? question = User.CurrentQuestion;
+            if (question == null)
+            {
+                long randomId = random.NextInt64(Db.Questions.LongCount() + 1);
+                question = Db.Questions.Where(q => q.Id == randomId).FirstOrDefault();
+            }
+
             if (question == null)
                 return "Вопросов пока нет.";
             
@@ -54,10 +58,12 @@ namespace QATopics.Models.Menu.Implications
             if (command == "👍" || command == "2")
             {
                 User.CurrentQuestion.LikeCount++;
+                User.CurrentQuestion = null;
                 return new CommandResponse(new QuestionsMenu(this));
             }
             if (command == "➡️" || command == "3")
             {
+                User.CurrentQuestion = null;
                 return new CommandResponse(new QuestionsMenu(this));
             }
             if (command == "🚩" || command == "4")
@@ -66,6 +72,7 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command == "Назад")
             {
+                User.CurrentQuestion = null;
                 return new CommandResponse(new MainMenu(this));
             }
             return null;

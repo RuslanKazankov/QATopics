@@ -10,7 +10,8 @@ namespace QATopics.Models.Menu
 {
     public interface IMenuParams
     {
-        User User { get; }
-        IMessageService? MessageService { get; }
+        public User User { get; }
+        public IMessageService? MessageService { get; }
+        public ApplicationContext Db { get; }
     }
 }

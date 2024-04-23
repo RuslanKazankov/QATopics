@@ -15,12 +15,11 @@ namespace QATopics.Models.Menu.Implications
         private const int countQuestionsOnOnePage = 20;
         public override string GetMenuText()
         {
-            using ApplicationContext db = new ApplicationContext();
             StringBuilder sb = new StringBuilder("Топ самых популярных вопросов:\n");
-            IQueryable<Question> questions = db.Questions.TakeLast(User.Admin!.AdminSettings.CountOfSelectedQuestions)
-                .OrderBy(q => q.LikeCount)
-                .SkipLast(User.Admin.AdminSettings.PageOfPopularQuestionsMenu * countQuestionsOnOnePage)
-                .TakeLast(countQuestionsOnOnePage);
+            List<Question> questions = Db.Questions.OrderByDescending(q => q.Id).Take(User.Admin!.AdminSettings!.CountOfSelectedQuestions)
+                .OrderByDescending(q => q.LikeCount)
+                .Skip(User.Admin.AdminSettings.PageOfPopularQuestionsMenu * countQuestionsOnOnePage)
+                .Take(countQuestionsOnOnePage).ToList();
             foreach (Question question in questions)
             {
                 sb.Append("Вопрос #").Append(question.Id)
@@ -28,7 +27,8 @@ namespace QATopics.Models.Menu.Implications
                     .Append(" Лайков: ").AppendLine(question.LikeCount.ToString());
                 sb.Append("Вопрос: ").AppendLine(question.Text);
                 sb.Append("Подробнее: /selectquestion_").AppendLine(question.Id.ToString());
-                foreach (Answer answer in question.Answers.Where(a => a.GoodAnswer).TakeLast(5))
+                var answers = question.Answers.Where(a => a.GoodAnswer).Take(5);
+                foreach (Answer answer in answers)
                 {
                     sb.Append("        Ответ от ").Append(answer.User!.Name).Append("#").AppendLine(answer.UserId.ToString())
                         .AppendLine("        " + answer.Text);
@@ -46,7 +46,7 @@ namespace QATopics.Models.Menu.Implications
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
             KeyboardBuilder keyboardBuilder = new KeyboardBuilder(["Назад"]);
-            if (User.Admin!.AdminSettings.PageOfPopularQuestionsMenu != 0)
+            if (User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu != 0)
             {
                 keyboardBuilder.AddKeyboardButton("⬅");
             }
@@ -65,20 +65,19 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command == "⬅")
             {
-                User.Admin!.AdminSettings.PageOfPopularQuestionsMenu--;
+                User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu--;
                 return new CommandResponse(this);
             }
             if (command == "➡")
             {
-                User.Admin!.AdminSettings.PageOfPopularQuestionsMenu++;
+                User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu++;
                 return new CommandResponse(this);
             }
             if (command.StartsWith("/selectquestion_"))
             {
                 if (int.TryParse(command.Split('_')[1], out int questionId))
                 {
-                    using ApplicationContext db = new ApplicationContext();
-                    User.CurrentQuestion = db.Questions.Where(q => q.Id == questionId).FirstOrDefault();
+                    User.CurrentQuestion = Db.Questions.Where(q => q.Id == questionId).FirstOrDefault();
                     return new CommandResponse(new AnswersOfQuestionAdminMenu(this));
                 }
                 return new CommandResponse(this) { ResultMessage = "Вопрос не найден"};

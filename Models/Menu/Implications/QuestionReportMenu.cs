@@ -43,10 +43,9 @@ namespace QATopics.Models.Menu.Implications
             }
             if (User.CurrentQuestion != null)
             {
-                using ApplicationContext db = new ApplicationContext();
                 QuestionReport questionReport = new QuestionReport(User.CurrentQuestion.Id, command);
-                db.QuestionReports.Add(questionReport);
-                db.SaveChanges();
+                Db.QuestionReports.Add(questionReport);
+                User.CurrentQuestion = null;
                 return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
             }
             return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Вопрос не найден"};
