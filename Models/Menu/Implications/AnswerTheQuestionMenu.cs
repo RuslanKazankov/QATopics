@@ -33,17 +33,20 @@ namespace QATopics.Models.Menu.Implications
         {
             if (command == "Назад")
                 return new CommandResponse(new MainMenu(this));
-            if (User.CurrentQuestion != null)
-            {
-                Answer answer = new Answer(User.CurrentQuestion.Id, command, User.Id);
-                Db.Answers.Add(answer);
 
-                MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
+            if (User.CurrentQuestion == null)
+                return new CommandResponse(new MainMenu(this)) { ResultMessage = "Вопрос не найден" };
 
-                User.CurrentQuestion = null;
-                return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Ваш ответ добавлен!" };
-            }
-            return new CommandResponse(new MainMenu(this)) { ResultMessage = "Вопрос не найден" };
+            if (command.Length > Config.MessageLengthLimit)
+                return new CommandResponse(this) { ResultMessage = $"Длина сообщения ({Config.MessageLengthLimit}) превышена" };
+
+            Answer answer = new Answer(User.CurrentQuestion.Id, command, User.Id);
+            Db.Answers.Add(answer);
+
+            MessageService?.SendMessageAsync(User.CurrentQuestion.UserId, "На ваш вопрос ответили!");
+
+            User.CurrentQuestion = null;
+            return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Ваш ответ добавлен!" };
         }
     }
 }

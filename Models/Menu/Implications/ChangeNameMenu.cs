@@ -1,4 +1,5 @@
-﻿using QATopics.Models.Database;
+﻿using QATopics.Helpers;
+using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Resources;
 using QATopics.Services;
@@ -34,13 +35,14 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
-            if (command != "Назад")
-            {
-                User.Name = command;
-                commandResponse.ResultMessage = "Ваш имя обновлено!";
-            }
-            return commandResponse;
+            if (command == "Назад")
+                return new CommandResponse(new MainMenu(this));
+
+            if (command.Length > Config.NameLengthLimit)
+                return new CommandResponse(this) { ResultMessage = $"Лимит имени ({Config.NameLengthLimit}) превышен." };
+
+            User.Name = command;
+            return new CommandResponse(new MainMenu(this)) { ResultMessage = "Ваш имя обновлено!" };
         }
     }
 }

@@ -50,9 +50,12 @@ namespace QATopics.Models.Menu.Implications
             {
                 keyboardBuilder.AddKeyboardButton("⬅");
             }
-            if (User.Admin!.AdminSettings.CountOfSelectedQuestions / countQuestionsOnOnePage != User.Admin.AdminSettings.PageOfPopularQuestionsMenu + 1)
+            if (Db.Questions.Count() > countQuestionsOnOnePage * (User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu + 1))
             {
-                keyboardBuilder.AddKeyboardButton("➡");
+                if (User.Admin!.AdminSettings.CountOfSelectedQuestions / countQuestionsOnOnePage != User.Admin.AdminSettings.PageOfPopularQuestionsMenu + 1)
+                {
+                    keyboardBuilder.AddKeyboardButton("➡");
+                }
             }
             return keyboardBuilder.BuildKeyboard();
         }
@@ -65,12 +68,21 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command == "⬅")
             {
-                User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu--;
+                if (User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu > 0)
+                {
+                    User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu--;
+                }
                 return new CommandResponse(this);
             }
             if (command == "➡")
             {
-                User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu++;
+                if (Db.Questions.Count() > countQuestionsOnOnePage * (User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu + 1))
+                {
+                    if (User.Admin!.AdminSettings.CountOfSelectedQuestions / countQuestionsOnOnePage != User.Admin.AdminSettings.PageOfPopularQuestionsMenu + 1)
+                    {
+                        User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu++;
+                    }
+                }
                 return new CommandResponse(this);
             }
             if (command.StartsWith("/selectquestion_"))

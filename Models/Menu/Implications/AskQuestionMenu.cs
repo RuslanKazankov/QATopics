@@ -30,20 +30,19 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse commandResponse = new CommandResponse(new MainMenu(this));
-            if (command != "Назад")
-            {
-                if (User.Questions.Count >= 100)
-                {
-                    commandResponse.ResultMessage = "У вас слишком много вопросов! Попробуйте удалить неактуальные вопросы.";
-                    return commandResponse;
-                }
-                Question question = new Question(User.Id, command);
-                Db.Questions.Add(question);
-                Db.SaveChanges();
-                commandResponse.ResultMessage = "Ваш вопрос добавлен!";
-            }
-            return commandResponse;
+            if (command == "Назад")
+                return new CommandResponse(new MainMenu(this));
+
+            if (User.Questions.Count >= Config.MessageCountLimit)
+                return new CommandResponse(new MainMenu(this)) { ResultMessage = "У вас слишком много вопросов! Попробуйте удалить неактуальные вопросы." };
+
+            if (command.Length > Config.MessageLengthLimit)
+                return new CommandResponse(this) { ResultMessage = $"Длина сообщения ({Config.MessageLengthLimit}) превышена" };
+
+            Question question = new Question(User.Id, command);
+            Db.Questions.Add(question);
+            Db.SaveChanges();
+            return new CommandResponse(new MainMenu(this)) { ResultMessage = "Ваш вопрос добавлен!" };
         }
     }
 }

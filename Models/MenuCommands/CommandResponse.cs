@@ -11,7 +11,7 @@ namespace QATopics.Models.MenuCommands
 {
     public class CommandResponse
     {
-        public BaseMenu NextMenu { get; set; }
+        public BaseMenu NextMenu { get; private set; }
         public ReplyKeyboardMarkup? ReplyKeyboard { get; private set; }
         public string? ResultMessage { get; set; }
         public CommandResponse(BaseMenu nextMenu)
