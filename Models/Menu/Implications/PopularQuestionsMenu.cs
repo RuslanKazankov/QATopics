@@ -12,14 +12,16 @@ namespace QATopics.Models.Menu.Implications
 {
     public class PopularQuestionsMenu(IMenuParams menuParams) : BaseMenu(menuParams)
     {
-        private const int countQuestionsOnOnePage = 20;
         public override string GetMenuText()
         {
-            StringBuilder sb = new StringBuilder("Топ самых популярных вопросов:\n");
-            List<Question> questions = Db.Questions.OrderByDescending(q => q.Id).Take(User.Admin!.AdminSettings!.CountOfSelectedQuestions)
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Всего вопросов: {Db.Questions.Where(q => q.AskDate >= DateTime.Today.AddDays(-Config.DaysOfLiveQuestion)).Count()}");
+            var questions = Db.Questions
+                .Where(q => q.AskDate >= DateTime.Today.AddDays(-Config.DaysOfLiveQuestion))
                 .OrderByDescending(q => q.LikeCount)
-                .Skip(User.Admin.AdminSettings.PageOfPopularQuestionsMenu * countQuestionsOnOnePage)
-                .Take(countQuestionsOnOnePage).ToList();
+                .Skip(User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu * Config.CountMessagesOnPage)
+                .Take(Config.CountMessagesOnPage).ToList();
+            sb.AppendLine("Топ самых популярных вопросов:");
             foreach (Question question in questions)
             {
                 sb.Append("Вопрос #").Append(question.Id)
@@ -27,11 +29,11 @@ namespace QATopics.Models.Menu.Implications
                     .Append(" Лайков: ").AppendLine(question.LikeCount.ToString());
                 sb.Append("Вопрос: ").AppendLine(question.Text);
                 sb.Append("Подробнее: /selectquestion_").AppendLine(question.Id.ToString());
-                var answers = question.Answers.Where(a => a.GoodAnswer).Take(5);
-                foreach (Answer answer in answers)
+                Answer? answer = question.Answers.Where(a => a.GoodAnswer).FirstOrDefault();
+                if (answer != null)
                 {
                     sb.Append("        Ответ от ").Append(answer.User!.Name).Append("#").AppendLine(answer.UserId.ToString())
-                        .AppendLine("        " + answer.Text);
+                        .AppendLine("        " + answer.Text[..Math.Min(answer.Text.Length, 50)]);
                 }
                 sb.AppendLine();
             }
@@ -50,12 +52,11 @@ namespace QATopics.Models.Menu.Implications
             {
                 keyboardBuilder.AddKeyboardButton("⬅");
             }
-            if (Db.Questions.Count() > countQuestionsOnOnePage * (User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu + 1))
+            int countSelectedQuestions = Db.Questions.Where(q => q.AskDate >= DateTime.Today.AddDays(-Config.DaysOfLiveQuestion)).Count();
+            int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
+            if (User.Admin!.AdminSettings.PageOfPopularQuestionsMenu + 1 < countOfPages)
             {
-                if (User.Admin!.AdminSettings.CountOfSelectedQuestions / countQuestionsOnOnePage != User.Admin.AdminSettings.PageOfPopularQuestionsMenu + 1)
-                {
-                    keyboardBuilder.AddKeyboardButton("➡");
-                }
+                keyboardBuilder.AddKeyboardButton("➡");
             }
             return keyboardBuilder.BuildKeyboard();
         }
@@ -76,12 +77,11 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command == "➡")
             {
-                if (Db.Questions.Count() > countQuestionsOnOnePage * (User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu + 1))
+                int countSelectedQuestions = Db.Questions.Where(q => q.AskDate >= DateTime.Today.AddDays(-Config.DaysOfLiveQuestion)).Count();
+                int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
+                if (User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu + 1 < countOfPages)
                 {
-                    if (User.Admin!.AdminSettings.CountOfSelectedQuestions / countQuestionsOnOnePage != User.Admin.AdminSettings.PageOfPopularQuestionsMenu + 1)
-                    {
-                        User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu++;
-                    }
+                    User.Admin!.AdminSettings!.PageOfPopularQuestionsMenu++;
                 }
                 return new CommandResponse(this);
             }

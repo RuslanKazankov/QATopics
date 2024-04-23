@@ -25,8 +25,8 @@ namespace QATopics.Models.Menu.Implications
             Question? question = User.CurrentQuestion;
             if (question == null)
             {
-                long randomId = random.NextInt64(Db.Questions.LongCount() + 1);
-                question = Db.Questions.Where(q => q.Id == randomId).FirstOrDefault();
+                int randomId = (int)random.NextInt64(Db.Questions.LongCount());
+                question = Db.Questions.Skip(randomId).FirstOrDefault();
             }
 
             if (question == null)

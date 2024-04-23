@@ -14,8 +14,9 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            StringBuilder sb = new StringBuilder("Жалобы на вопросы: ");
-            foreach (QuestionReport qreport in Db.QuestionReports.OrderByDescending(q => q.Id).Take(20))
+            StringBuilder sb = new StringBuilder("Жалобы на вопросы: \n");
+            var qreports = Db.QuestionReports.OrderByDescending(qr => qr.Question!.Reports.Count).Take(Config.CountMessagesOnPage / 2).ToList();
+            foreach (QuestionReport qreport in qreports)
             {
                 sb.Append("Вопрос #").AppendLine(qreport.Question!.Id.ToString())
                     .Append("Вопрос: ").AppendLine(qreport.Question.Text);
@@ -53,11 +54,11 @@ namespace QATopics.Models.Menu.Implications
                     {
                         Db.QuestionReports.Remove(qreport);
                         Db.SaveChanges();
-                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
+                        return new CommandResponse(this) { ResultMessage = "Жалоба отменена" };
                     }
-                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена" };
+                    return new CommandResponse(this) { ResultMessage = "Жалоба не найдена" };
                 }
-                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос" };
+                return new CommandResponse(this) { ResultMessage = "Некорректный запрос" };
             }
             if (command.StartsWith("/acceptreport"))
             {
@@ -69,11 +70,11 @@ namespace QATopics.Models.Menu.Implications
                         Db.Users.Where(u => u.Id == qreport.Question!.UserId).FirstOrDefault()!.ReportsCount++;
                         Db.Questions.Remove(qreport.Question!);
                         Db.SaveChanges();
-                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
+                        return new CommandResponse(this) { ResultMessage = "Жалоба принята" };
                     }
-                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена" };
+                    return new CommandResponse(this) { ResultMessage = "Жалоба не найдена" };
                 }
-                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос" };
+                return new CommandResponse(this) { ResultMessage = "Некорректный запрос" };
             }
             if (command.StartsWith("/ban"))
             {
@@ -91,11 +92,11 @@ namespace QATopics.Models.Menu.Implications
                         Db.SaveChanges();
 
                         MessageService?.SendMessageAsync(qreport.Question.UserId, "You have been banned.");
-                        return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба отменена" };
+                        return new CommandResponse(this) { ResultMessage = "Пользователь забанен" };
                     }
-                    return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Жалоба не найдена" };
+                    return new CommandResponse(this) { ResultMessage = "Жалоба не найдена" };
                 }
-                return new CommandResponse(new AdminMenu(this)) { ResultMessage = "Некорректный запрос" };
+                return new CommandResponse(this) { ResultMessage = "Некорректный запрос" };
             }
             return null;
         }

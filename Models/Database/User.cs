@@ -14,6 +14,8 @@ namespace QATopics.Models.Database
         [Column("user_id")]
         public long Id { get; set; }
         public string Name { get; set; }
+        public long UserSettingsId { get; set; }
+        public virtual UserSettings? UserSettings { get; set; }
         public int ReportsCount { get; set; }
         public bool Ban { get; set; }
         public virtual Admin? Admin { get; set; }
@@ -23,11 +25,12 @@ namespace QATopics.Models.Database
         public long? CurrentAnswerId { get; set; }
         public virtual Answer? CurrentAnswer { get; set; }
         public virtual List<Question> Questions { get; set; } = [];
-        public User(long id, string currentMenu, string name = "Аноним")
+        public User(long id, string currentMenu, long userSettingsId, string name = "Аноним")
         {
             Id = id;
             Name = name;
             CurrentMenu = currentMenu;
+            UserSettingsId = userSettingsId;
         }
     }
 }

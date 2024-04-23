@@ -18,10 +18,12 @@ namespace QATopics.Models.Database
         public int LikeCount { get; set; }
         public virtual List<Answer> Answers { get; set; } = [];
         public virtual List<QuestionReport> Reports { get; set; } = [];
+        public DateTime AskDate { get; set; }
         public Question(long userId, string text)
         {
             UserId = userId;
             Text = text;
+            AskDate = DateTime.Now;
         }
     }
 }

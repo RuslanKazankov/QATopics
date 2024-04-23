@@ -1,4 +1,5 @@
-﻿using QATopics.Models.Database;
+﻿using QATopics.Helpers;
+using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using QATopics.Services;
 using System;
@@ -19,49 +20,77 @@ namespace QATopics.Models.Menu.Implications
         public override string GetMenuText()
         {
             StringBuilder sb = new StringBuilder();
-            foreach(Question question in Db.Questions.Where(q => q.UserId == User.Id))
+            sb.AppendLine("Напишите номер вопроса чтобы удалить его.");
+            var questions = Db.Questions
+                .OrderByDescending(q => q.Id)
+                .Where(q => q.UserId == User.Id)
+                .Skip(User.UserSettings!.PageOfMyQuestions * Config.CountMessagesOnPage)
+                .Take(Config.CountMessagesOnPage);
+            foreach(Question question in questions)
             {
                 sb.Append("Вопрос #").AppendLine(question.Id.ToString());
                 sb.AppendLine(question.Text);
                 sb.Append("Лайков: ").AppendLine(question.LikeCount.ToString());
             }
-            sb.AppendLine("Напишите номер вопроса чтобы удалить его.");
             return sb.ToString();
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            ReplyKeyboardMarkup replyKeyboard = new(new KeyboardButton[] {
-                new KeyboardButton("Назад")
-            });
-            replyKeyboard.ResizeKeyboard = true;
-            return replyKeyboard;
+            KeyboardBuilder keyboardBuilder = new KeyboardBuilder(["Назад"]);
+            if (User.UserSettings!.PageOfMyQuestions != 0)
+            {
+                keyboardBuilder.AddKeyboardButton("⬅");
+            }
+            int countSelectedQuestions = User.Questions.Count;
+            int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
+            if (User.UserSettings!.PageOfMyQuestions + 1 < countOfPages)
+            {
+                keyboardBuilder.AddKeyboardButton("➡");
+            }
+            return keyboardBuilder.BuildKeyboard();
         }
 
         public override CommandResponse? SendCommand(string command)
         {
-            CommandResponse? commandResponse = null;
+            if (command == "Назад")
+            {
+                return new CommandResponse(new MainMenu(this));
+            }
+            if (command == "⬅")
+            {
+                if (User.UserSettings!.PageOfMyQuestions != 0)
+                {
+                    User.UserSettings!.PageOfMyQuestions--;
+                    return new CommandResponse(this);
+                }
+            }
+            if (command == "➡")
+            {
+                int countSelectedQuestions = User.Questions.Count;
+                int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
+                if (User.UserSettings!.PageOfMyQuestions + 1 < countOfPages)
+                {
+                    User.UserSettings!.PageOfMyQuestions++;
+                    return new CommandResponse(this);
+                }
+            }
             int idOfQuestion = -1;
             if (int.TryParse(command, out idOfQuestion))
             {
                 Question? question = Db.Questions.Where((q) =>  q.UserId == User.Id && q.Id == idOfQuestion).FirstOrDefault();
-                commandResponse = new CommandResponse(new MyQuestionsMenu(this));
                 if (question == null)
                 {
-                    commandResponse.ResultMessage = "Вопрос не найден";
+                    return new CommandResponse(this) { ResultMessage = "Вопрос не найден" };
                 }
                 else
                 {
                     Db.Questions.Remove(question);
                     Db.SaveChanges();
-                    commandResponse.ResultMessage = "Вопрос #" + question.Id + " удалён!";
+                    return new CommandResponse(this) { ResultMessage = $"Вопрос #{question.Id} удалён" };
                 }
             }
-            if (command == "Назад")
-            {
-                commandResponse = new CommandResponse(new MainMenu(this));
-            }
-            return commandResponse;
+            return null;
         }
     }
 }

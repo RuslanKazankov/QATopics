@@ -41,14 +41,18 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(new QuestionsMenu(this));
             }
-            if (User.CurrentQuestion != null)
+            if (User.CurrentQuestion == null)
             {
-                QuestionReport questionReport = new QuestionReport(User.CurrentQuestion.Id, command);
-                Db.QuestionReports.Add(questionReport);
-                User.CurrentQuestion = null;
-                return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
+                return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Вопрос не найден" };
             }
-            return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Вопрос не найден"};
+            if (command.Length > Config.ReasonMessageLimit)
+            {
+                return new CommandResponse(this) { ResultMessage = $"Постарайтесь уместить всю боль в {Config.ReasonMessageLimit} символов" };
+            }
+            QuestionReport questionReport = new QuestionReport(User.CurrentQuestion.Id, command);
+            Db.QuestionReports.Add(questionReport);
+            User.CurrentQuestion = null;
+            return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
         }
     }
 }

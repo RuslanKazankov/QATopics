@@ -46,6 +46,10 @@ namespace QATopics.Models.Menu.Implications
                 User.CurrentAnswer = null;
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
+            if (command.Length > Config.ReasonMessageLimit)
+            {
+                return new CommandResponse(this) { ResultMessage = $"Постарайтесь уместить всю боль в {Config.ReasonMessageLimit} символов" };
+            }
             Db.AnswerReports.Add(new AnswerReport(User.CurrentAnswer.Id, command));
             Db.SaveChanges();
             User.CurrentAnswer = null;

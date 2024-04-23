@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+using QATopics.Helpers;
 using QATopics.Models.Database;
 using QATopics.Models.MenuCommands;
 using System.Text;
@@ -11,7 +12,12 @@ namespace QATopics.Models.Menu.Implications
         public override string GetMenuText()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var answer in Db.Answers.OrderByDescending(a => a.Id).Where(a => a.Question!.UserId == User.Id).Take(20))
+            var answers = Db.Answers
+                .OrderByDescending(a => a.Id)
+                .Where(a => a.Question!.UserId == User.Id)
+                .Skip(User.UserSettings!.PageOfAnswers * Config.CountMessagesOnPage)
+                .Take(Config.CountMessagesOnPage / 2).ToList();
+            foreach (var answer in answers)
             {
                 if (answer.GoodAnswer)
                 {
@@ -34,11 +40,18 @@ namespace QATopics.Models.Menu.Implications
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            ReplyKeyboardMarkup replyKeyboard = new(new KeyboardButton[] {
-                new KeyboardButton("Назад")
-            });
-            replyKeyboard.ResizeKeyboard = true;
-            return replyKeyboard;
+            KeyboardBuilder keyboardBuilder = new KeyboardBuilder(["Назад"]);
+            if (User.UserSettings!.PageOfAnswers != 0)
+            {
+                keyboardBuilder.AddKeyboardButton("⬅");
+            }
+            int countSelectedQuestions = Db.Answers.Where(a=> a.Question!.UserId == User.Id).Count();
+            int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
+            if (User.UserSettings!.PageOfAnswers + 1 < countOfPages)
+            {
+                keyboardBuilder.AddKeyboardButton("➡");
+            }
+            return keyboardBuilder.BuildKeyboard();
         }
 
         public override CommandResponse? SendCommand(string command)
@@ -46,6 +59,24 @@ namespace QATopics.Models.Menu.Implications
             if (command == "Назад")
             {
                 return new CommandResponse(new MainMenu(this));
+            }
+            if (command == "⬅")
+            {
+                if (User.UserSettings!.PageOfAnswers != 0)
+                {
+                    User.UserSettings!.PageOfAnswers--;
+                    return new CommandResponse(this);
+                }
+            }
+            if (command == "➡")
+            {
+                int countSelectedQuestions = Db.Answers.Where(a => a.Question!.UserId == User.Id).Count();
+                int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
+                if (User.UserSettings!.PageOfAnswers + 1 < countOfPages)
+                {
+                    User.UserSettings!.PageOfAnswers++;
+                    return new CommandResponse(this);
+                }
             }
             if (command.StartsWith("/report_"))
             {

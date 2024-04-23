@@ -6,6 +6,7 @@ using QATopics.Models.MenuCommands;
 using QATopics.Resources;
 using QATopics.Services;
 using QATopics.Services.Implications;
+using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -60,24 +61,32 @@ namespace QATopics
             var chatId = message.Chat.Id;
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
+            //Authorization
             Models.Database.User? user;
             bool registration = false;
 
             using ApplicationContext db = new ApplicationContext();
             user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
+
             //Registration
             if (registration = user == null)
             {
-                user = new Models.Database.User(chatId, nameof(MainMenu));
+                UserSettings userSettings = new UserSettings();
+                db.UserSettings.Add(userSettings);
+                db.SaveChanges();
+                user = new Models.Database.User(chatId, nameof(MainMenu), userSettings.Id);
                 db.Users.Add(user);
                 db.SaveChanges();
                 await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
                             replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
+
+            //Ban?
             if (user!.Ban)
             {
                 return;
             }
+
             //Use bot
             BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService, db);
 

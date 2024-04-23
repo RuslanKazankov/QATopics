@@ -12,10 +12,12 @@ namespace QATopics.Models.Database
         public DbSet<QuestionReport> QuestionReports { get; set; } = null!;
         public DbSet<AnswerReport> AnswerReports { get; set; } = null!;
         public DbSet<Admin> Admins { get; set; } = null!;
+        public DbSet<AdminSettings> AdminSettings { get; set; } = null!;
+        public DbSet<UserSettings> UserSettings { get; set; } = null!;
 
         public ApplicationContext()
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -44,10 +46,13 @@ namespace QATopics.Models.Database
                 .HasForeignKey<User>(u => u.CurrentAnswerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            User user = new User(Config.AdminChatId, nameof(MainMenu), "Администратор Тайлер");
+            UserSettings userSettings = new UserSettings() { Id = 1 };
+            modelBuilder.Entity<UserSettings>().HasData(userSettings);
+
+            User user = new User(Config.AdminChatId, nameof(MainMenu), userSettings.Id, "Администратор Тайлер");
             modelBuilder.Entity<User>().HasData(user);
 
-            AdminSettings adminSettings = new AdminSettings() { Id = 1};
+            AdminSettings adminSettings = new AdminSettings() { Id = 1 };
             modelBuilder.Entity<AdminSettings>().HasData(adminSettings);
 
             Admin admin = new Admin(user.Id, adminSettings.Id) { Id = 1 };

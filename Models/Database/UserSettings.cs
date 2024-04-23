@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 
 namespace QATopics.Models.Database
 {
-
-    [Table("AdminSettings")]
-    public class AdminSettings
+    [Table("UserSettings")]
+    public class UserSettings
     {
         public long Id { get; set; }
-        public virtual Admin? AdminId { get; set; }
-        public int PageOfPopularQuestionsMenu { get; set; } = 0;
-        public int PageOfAnswersOnPopularQuestions { get; set; } = 0;
+        public virtual User? User { get; set; }
+        public int PageOfMyQuestions { get; set; } = 0;
+        public int PageOfAnswers{ get; set; } = 0;
     }
 }
