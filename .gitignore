@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /Helpers/Config.cs
 /Migrations
+/config.json
