@@ -69,8 +69,6 @@ namespace QATopics
             using ApplicationContext db = new ApplicationContext();
             user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
 
-            try
-            {
                 //Registration
                 if (registration = user == null)
                 {
@@ -124,24 +122,7 @@ namespace QATopics
                 await botClient.SendTextMessageAsync(chatId: chatId, text: currentMenu.GetMenuText(), 
                     replyMarkup: currentMenu.GetRelplyKeyboard(), cancellationToken: cancellationToken);
                 db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                string userInfo = "User is null";
-                if (user != null)
-                {
-                    userInfo = $"User.Id: {user.Id}\n" +
-                        $"User.Name: {user.Name}\n" +
-                        $"Message: {message}\n" +
-                        $"Ban: {user.Ban}\n" +
-                        $"Menu: {user.CurrentMenu}\n" +
-                        $"CurrentQuestion: {user.CurrentQuestion}" +
-                        $"CurrentQuestionId: {user.CurrentQuestionId}" +
-                        $"CurrentAnswer: {user.CurrentAnswer}" +
-                        $"CurrentAnswerId: {user.CurrentAnswerId}";
-                }
-                await System.IO.File.WriteAllLinesAsync(Config.ExceptionLogFile, [userInfo, ex.Message]);
-            }
+            
         }
 
         private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -153,6 +134,7 @@ namespace QATopics
                 _ => exception.ToString()
             };
 
+            System.IO.File.WriteAllLines(Config.ExceptionLogFile, [ErrorMessage]);
             Console.WriteLine(ErrorMessage);
             return Task.CompletedTask;
         }
