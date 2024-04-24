@@ -15,10 +15,6 @@ namespace QATopics.Models.Menu.Implications
     public class QuestionsMenu(IMenuParams menuParams) : BaseMenu(menuParams)
     {
         private Random random = new Random();
-        public override string GetNameOfMenu()
-        {
-            return nameof(QuestionsMenu);
-        }
 
         public override string GetMenuText()
         {
@@ -33,7 +29,12 @@ namespace QATopics.Models.Menu.Implications
                 return "Вопросов пока нет.";
             
             User.CurrentQuestion = question;
-            return "❔: " + question.Text + "\n" + Replicas.QuestionMenuText ?? "Походу тут ошибка произошла, сорян, листай дальше =)";
+            return $"{question.User!.Name}:\n{question.Text}\n{Replicas.QuestionMenuText}";
+        }
+
+        public override string GetNameOfMenu()
+        {
+            return nameof(QuestionsMenu);
         }
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()

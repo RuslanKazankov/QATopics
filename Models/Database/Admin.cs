@@ -17,10 +17,5 @@ namespace QATopics.Models.Database
         public virtual User? User { get; set; }
         public long AdminSettingsId { get; set; }
         public virtual AdminSettings? AdminSettings { get; set; }
-        public Admin(long userId, long adminSettingsId)
-        {
-            UserId = userId;
-            AdminSettingsId = adminSettingsId;
-        }
     }
 }

@@ -51,10 +51,12 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command == "4") //Мои вопросы
             {
+                User.UserSettings!.PageOfMyQuestions = 0;
                 return new CommandResponse(new MyQuestionsMenu(this));
             }
             if (command == "5") //Ответы
             {
+                User.UserSettings!.PageOfAnswers = 0;
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
             if (command == "/adminpanel" && User.Admin != null)

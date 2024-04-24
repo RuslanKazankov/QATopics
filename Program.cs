@@ -6,6 +6,8 @@ using QATopics.Models.MenuCommands;
 using QATopics.Resources;
 using QATopics.Services;
 using QATopics.Services.Implications;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -57,7 +59,6 @@ namespace QATopics
             // Only process text messages
             var messageText = message.Text;
             if (messageText == null) return;
-
             var chatId = message.Chat.Id;
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
@@ -68,51 +69,79 @@ namespace QATopics
             using ApplicationContext db = new ApplicationContext();
             user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
 
-            //Registration
-            if (registration = user == null)
+            try
             {
-                UserSettings userSettings = new UserSettings();
-                db.UserSettings.Add(userSettings);
-                db.SaveChanges();
-                user = new Models.Database.User(chatId, nameof(MainMenu), userSettings.Id);
-                db.Users.Add(user);
-                db.SaveChanges();
-                await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
-                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
-
-            //Ban?
-            if (user!.Ban)
-            {
-                return;
-            }
-
-            //Use bot
-            BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService, db);
-
-            if (!registration)
-            {
-                CommandResponse? commandResponse = currentMenu.SendCommand(messageText);
-                if (commandResponse == null)
+                //Registration
+                if (registration = user == null)
                 {
-                    await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.ErrorCommandText,
-                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                    UserSettings userSettings = new UserSettings();
+                    user = new Models.Database.User(chatId, nameof(MainMenu)) { UserSettings = userSettings };
+                    db.Users.Add(user);
+                    db.SaveChanges();
+                    await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
+                                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
                 }
-                else
+
+                //AddAdministration
+                if (Config.AdminChatId == chatId && user!.Admin == null)
                 {
-                    if (commandResponse.ResultMessage != null)
-                    {
-                        await botClient.SendTextMessageAsync(chatId: chatId, text: commandResponse.ResultMessage,
-                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-                    }
-                    currentMenu = commandResponse.NextMenu;
-                    user.CurrentMenu = currentMenu.GetNameOfMenu();
+                    user!.Name = "Администратор Тайлер";
+                    AdminSettings adminSettings = new AdminSettings();
+                    Admin admin = new Admin() { User = user, AdminSettings = adminSettings };
+                    db.Admins.Add(admin);
                     db.SaveChanges();
                 }
+
+                //Ban?
+                if (user!.Ban)
+                {
+                    return;
+                }
+
+                //Use bot
+                BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService, db);
+
+                if (!registration)
+                {
+                    CommandResponse? commandResponse = currentMenu.SendCommand(messageText);
+                    if (commandResponse == null)
+                    {
+                        await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.ErrorCommandText,
+                                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        if (commandResponse.ResultMessage != null)
+                        {
+                            await botClient.SendTextMessageAsync(chatId: chatId, text: commandResponse.ResultMessage,
+                                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                        }
+                        currentMenu = commandResponse.NextMenu;
+                        user.CurrentMenu = currentMenu.GetNameOfMenu();
+                        db.SaveChanges();
+                    }
+                }
+                await botClient.SendTextMessageAsync(chatId: chatId, text: currentMenu.GetMenuText(), 
+                    replyMarkup: currentMenu.GetRelplyKeyboard(), cancellationToken: cancellationToken);
+                db.SaveChanges();
             }
-            await botClient.SendTextMessageAsync(chatId: chatId, text: currentMenu.GetMenuText(), 
-                replyMarkup: currentMenu.GetRelplyKeyboard(), cancellationToken: cancellationToken);
-            db.SaveChanges();
+            catch (Exception ex)
+            {
+                string userInfo = "User is null";
+                if (user != null)
+                {
+                    userInfo = $"User.Id: {user.Id}\n" +
+                        $"User.Name: {user.Name}\n" +
+                        $"Message: {message}\n" +
+                        $"Ban: {user.Ban}\n" +
+                        $"Menu: {user.CurrentMenu}\n" +
+                        $"CurrentQuestion: {user.CurrentQuestion}" +
+                        $"CurrentQuestionId: {user.CurrentQuestionId}" +
+                        $"CurrentAnswer: {user.CurrentAnswer}" +
+                        $"CurrentAnswerId: {user.CurrentAnswerId}";
+                }
+                await System.IO.File.WriteAllLinesAsync(Config.ExceptionLogFile, [userInfo, ex.Message]);
+            }
         }
 
         private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

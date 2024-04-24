@@ -12,6 +12,7 @@ namespace QATopics.Models.Database
     public class User
     {
         [Column("user_id")]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Id { get; set; }
         public string Name { get; set; }
         public long UserSettingsId { get; set; }
@@ -25,12 +26,11 @@ namespace QATopics.Models.Database
         public long? CurrentAnswerId { get; set; }
         public virtual Answer? CurrentAnswer { get; set; }
         public virtual List<Question> Questions { get; set; } = [];
-        public User(long id, string currentMenu, long userSettingsId, string name = "Аноним")
+        public User(long id, string currentMenu, string name = "Аноним")
         {
             Id = id;
             Name = name;
             CurrentMenu = currentMenu;
-            UserSettingsId = userSettingsId;
         }
     }
 }

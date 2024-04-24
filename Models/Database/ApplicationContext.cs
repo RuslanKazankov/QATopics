@@ -17,7 +17,7 @@ namespace QATopics.Models.Database
 
         public ApplicationContext()
         {
-            //Database.EnsureCreated();
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -46,17 +46,23 @@ namespace QATopics.Models.Database
                 .HasForeignKey<User>(u => u.CurrentAnswerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            UserSettings userSettings = new UserSettings() { Id = 1 };
-            modelBuilder.Entity<UserSettings>().HasData(userSettings);
+            //UserSettings userSettings = new UserSettings() { Id = 1 };
+            //modelBuilder.Entity<UserSettings>().HasData(userSettings);
 
-            User user = new User(Config.AdminChatId, nameof(MainMenu), userSettings.Id, "Администратор Тайлер");
-            modelBuilder.Entity<User>().HasData(user);
+            //User user = new User(Config.AdminChatId, nameof(MainMenu), userSettings.Id, "Администратор Тайлер");
+            //modelBuilder.Entity<User>().HasData(user);
 
-            AdminSettings adminSettings = new AdminSettings() { Id = 1 };
-            modelBuilder.Entity<AdminSettings>().HasData(adminSettings);
+            //UserSettings userSettings1 = new UserSettings() { Id = 2 };
+            //modelBuilder.Entity<UserSettings>().HasData(userSettings1);
 
-            Admin admin = new Admin(user.Id, adminSettings.Id) { Id = 1 };
-            modelBuilder.Entity<Admin>().HasData(admin);
+            //User user1 = new User(501340703, nameof(MainMenu), userSettings1.Id, "Йана");
+            //modelBuilder.Entity<User>().HasData(user1);
+
+            //AdminSettings adminSettings = new AdminSettings() { Id = 1 };
+            //modelBuilder.Entity<AdminSettings>().HasData(adminSettings);
+
+            //Admin admin = new Admin(user.Id, adminSettings.Id) { Id = 1 };
+            //modelBuilder.Entity<Admin>().HasData(admin);
         }
     }
 }
