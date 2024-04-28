@@ -364,3 +364,5 @@ FodyWeavers.xsd
 /Helpers/Config.cs
 /Migrations
 /config.json
+/Dockerfile
+/Properties/launchSettings.json
