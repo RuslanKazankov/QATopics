@@ -16,6 +16,7 @@ namespace QATopics.Models.Database
         public virtual User? User { get; set; }
         public string Text { get; set; }
         public int LikeCount { get; set; }
+        public virtual List<User> CurrentUsers { get; set; } = [];
         public virtual List<Answer> Answers { get; set; } = [];
         public virtual List<QuestionReport> Reports { get; set; } = [];
         public DateTime AskDate { get; set; }

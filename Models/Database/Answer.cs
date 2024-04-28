@@ -18,6 +18,7 @@ namespace QATopics.Models.Database
         public long UserId { get; set; }
         public virtual User? User { get; set; }
         public bool GoodAnswer { get; set; }
+        public virtual List<User> CurrentUsers { get; set; } = [];
         public virtual List<AnswerReport> AnswerReports { get; set; } = [];
         public Answer(long questionId, string text, long userId)
         {

@@ -44,6 +44,7 @@ namespace QATopics
             var me = await botClient.GetMeAsync();
 
             Console.WriteLine($"Start listening for @{me.Username}");
+
             Console.ReadLine();
 
             // Send cancellation request to stop bot
@@ -68,61 +69,61 @@ namespace QATopics
 
             using ApplicationContext db = new ApplicationContext();
             user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
-
-                //Registration
-                if (registration = user == null)
-                {
-                    UserSettings userSettings = new UserSettings();
-                    user = new Models.Database.User(chatId, nameof(MainMenu)) { UserSettings = userSettings };
-                    db.Users.Add(user);
-                    db.SaveChanges();
-                    await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
-                                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-                }
-
-                //AddAdministration
-                if (Config.AdminChatId == chatId && user!.Admin == null)
-                {
-                    user!.Name = "Администратор Тайлер";
-                    AdminSettings adminSettings = new AdminSettings();
-                    Admin admin = new Admin() { User = user, AdminSettings = adminSettings };
-                    db.Admins.Add(admin);
-                    db.SaveChanges();
-                }
-
-                //Ban?
-                if (user!.Ban)
-                {
-                    return;
-                }
-
-                //Use bot
-                BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService, db);
-
-                if (!registration)
-                {
-                    CommandResponse? commandResponse = currentMenu.SendCommand(messageText);
-                    if (commandResponse == null)
-                    {
-                        await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.ErrorCommandText,
-                                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-                    }
-                    else
-                    {
-                        if (commandResponse.ResultMessage != null)
-                        {
-                            await botClient.SendTextMessageAsync(chatId: chatId, text: commandResponse.ResultMessage,
-                                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-                        }
-                        currentMenu = commandResponse.NextMenu;
-                        user.CurrentMenu = currentMenu.GetNameOfMenu();
-                        db.SaveChanges();
-                    }
-                }
-                await botClient.SendTextMessageAsync(chatId: chatId, text: currentMenu.GetMenuText(), 
-                    replyMarkup: currentMenu.GetRelplyKeyboard(), cancellationToken: cancellationToken);
+            registration = user == null;
+            //Registration
+            if (registration)
+            {
+                UserSettings userSettings = new UserSettings();
+                user = new Models.Database.User(chatId, nameof(MainMenu)) { UserSettings = userSettings };
+                db.Users.Add(user);
                 db.SaveChanges();
-            
+                await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.WelcomeText,
+                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+            }
+
+            //AddAdministration
+            if (Config.AdminChatId == chatId && user!.Admin == null)
+            {
+                user!.Name = "Администратор Тайлер";
+                AdminSettings adminSettings = new AdminSettings();
+                Admin admin = new Admin() { User = user, AdminSettings = adminSettings };
+                db.Admins.Add(admin);
+                db.SaveChanges();
+            }
+
+            //Ban?
+            if (user!.Ban)
+            {
+                return;
+            }
+
+            //Use bot
+            BaseMenu currentMenu = MenuService.GetMenuOfUser(user, messageService, db);
+
+            if (!registration)
+            {
+                CommandResponse? commandResponse = currentMenu.SendCommand(messageText);
+                if (commandResponse == null)
+                {
+                    await botClient.SendTextMessageAsync(chatId: chatId, text: Replicas.ErrorCommandText,
+                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    if (commandResponse.ResultMessage != null)
+                    {
+                        await botClient.SendTextMessageAsync(chatId: chatId, text: commandResponse.ResultMessage,
+                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                    }
+                    currentMenu = commandResponse.NextMenu;
+                    user.CurrentMenu = currentMenu.GetNameOfMenu();
+                    db.SaveChanges();
+                }
+            }
+            await botClient.SendTextMessageAsync(chatId: chatId, text: currentMenu.GetMenuText(),
+                replyMarkup: currentMenu.GetRelplyKeyboard(), cancellationToken: cancellationToken);
+            db.SaveChanges();
+
         }
 
         private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -134,7 +135,7 @@ namespace QATopics
                 _ => exception.ToString()
             };
 
-            System.IO.File.WriteAllLines(Config.ExceptionLogFile, [ErrorMessage]);
+            System.IO.File.AppendAllLines(Config.ExceptionLogFile, ["######################################################", ErrorMessage]);
             Console.WriteLine(ErrorMessage);
             return Task.CompletedTask;
         }

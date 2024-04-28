@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using QATopics.Helpers;
 using QATopics.Models.Menu.Implications;
 
@@ -23,7 +24,7 @@ namespace QATopics.Models.Database
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies()
-                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=qatopicsdb;Trusted_Connection=True;");
+                .UseSqlServer(Config.LocalDbConnection);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,16 +35,16 @@ namespace QATopics.Models.Database
                 .HasForeignKey(q => q.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.CurrentQuestion)
-                .WithOne()
-                .HasForeignKey<User>(u => u.CurrentQuestionId)
+            modelBuilder.Entity<Question>()
+                .HasMany(q => q.CurrentUsers)
+                .WithOne(u => u.CurrentQuestion)
+                .HasForeignKey(u => u.CurrentQuestionId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.CurrentAnswer)
-                .WithOne()
-                .HasForeignKey<User>(u => u.CurrentAnswerId)
+            modelBuilder.Entity<Answer>()
+                .HasMany(q => q.CurrentUsers)
+                .WithOne(u => u.CurrentAnswer)
+                .HasForeignKey(u => u.CurrentAnswerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             //UserSettings userSettings = new UserSettings() { Id = 1 };
