@@ -18,7 +18,7 @@ namespace QATopics.Models.Menu.Implications
 
         public override string GetMenuText()
         {
-            Question? question = User.CurrentQuestion;
+            Question? question = User.UserSettings!.CurrentQuestion;
             if (question == null)
             {
                 int randomId = (int)random.NextInt64(Db.Questions.LongCount());
@@ -28,7 +28,7 @@ namespace QATopics.Models.Menu.Implications
             if (question == null)
                 return "Вопросов пока нет.";
             
-            User.CurrentQuestion = question;
+            User.UserSettings!.CurrentQuestion = question;
             return $"{question.User!.Name}:\n{question.Text}\n{Replicas.QuestionMenuText}";
         }
 
@@ -39,7 +39,7 @@ namespace QATopics.Models.Menu.Implications
 
         public override ReplyKeyboardMarkup GetRelplyKeyboard()
         {
-            if (User.CurrentQuestion == null)
+            if (User.UserSettings!.CurrentQuestion == null)
             {
                 return new KeyboardBuilder("Назад").BuildKeyboard();
             }
@@ -48,23 +48,23 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            if (User.CurrentQuestion == null)
+            if (User.UserSettings!.CurrentQuestion == null)
                 return new CommandResponse(new MainMenu(this));
 
             if (command == "💬" || command == "1")
             {
-                User.CurrentQuestion.LikeCount++;
+                User.UserSettings!.CurrentQuestion.LikeCount++;
                 return new CommandResponse(new AnswerTheQuestionMenu(this));
             }
             if (command == "👍" || command == "2")
             {
-                User.CurrentQuestion.LikeCount++;
-                User.CurrentQuestion = null;
+                User.UserSettings!.CurrentQuestion.LikeCount++;
+                User.UserSettings!.CurrentQuestion = null;
                 return new CommandResponse(new QuestionsMenu(this));
             }
             if (command == "➡️" || command == "3")
             {
-                User.CurrentQuestion = null;
+                User.UserSettings!.CurrentQuestion = null;
                 return new CommandResponse(new QuestionsMenu(this));
             }
             if (command == "🚩" || command == "4")
@@ -73,7 +73,7 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command == "Назад")
             {
-                User.CurrentQuestion = null;
+                User.UserSettings!.CurrentQuestion = null;
                 return new CommandResponse(new MainMenu(this));
             }
             return null;

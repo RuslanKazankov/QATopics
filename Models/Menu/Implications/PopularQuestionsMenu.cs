@@ -89,7 +89,7 @@ namespace QATopics.Models.Menu.Implications
             {
                 if (int.TryParse(command.Split('_')[1], out int questionId))
                 {
-                    User.CurrentQuestion = Db.Questions.Where(q => q.Id == questionId).FirstOrDefault();
+                    User.UserSettings!.CurrentQuestion = Db.Questions.Where(q => q.Id == questionId).FirstOrDefault();
                     return new CommandResponse(new AnswersOfQuestionAdminMenu(this));
                 }
                 return new CommandResponse(this) { ResultMessage = "Вопрос не найден"};

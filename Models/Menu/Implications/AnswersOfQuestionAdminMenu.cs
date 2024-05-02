@@ -14,14 +14,14 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            if (User.CurrentQuestion != null)
+            if (User.UserSettings!.CurrentQuestion != null)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("Вопрос #").AppendLine(User.CurrentQuestion.Id.ToString());
-                sb.Append("Вопрос от ").Append(User.CurrentQuestion.User!.Name).Append("#").AppendLine(User.CurrentQuestion.User.Id.ToString());
-                sb.Append("Вопрос: ").AppendLine(User.CurrentQuestion.Text.Substring(0, Math.Min(User.CurrentQuestion.Text.Length, 50)));
-                sb.AppendLine($"Всего ответов: {User.CurrentQuestion.Answers.Count}");
-                IEnumerable<Answer> answers = User.CurrentQuestion.Answers
+                sb.Append("Вопрос #").AppendLine(User.UserSettings.CurrentQuestion.Id.ToString());
+                sb.Append("Вопрос от ").Append(User.UserSettings.CurrentQuestion.User!.Name).Append("#").AppendLine(User.UserSettings.CurrentQuestion.User.Id.ToString());
+                sb.Append("Вопрос: ").AppendLine(User.UserSettings.CurrentQuestion.Text.Substring(0, Math.Min(User.UserSettings.CurrentQuestion.Text.Length, 50)));
+                sb.AppendLine($"Всего ответов: {User.UserSettings.CurrentQuestion.Answers.Count}");
+                IEnumerable<Answer> answers = User.UserSettings.CurrentQuestion.Answers
                     .OrderByDescending(a => a.Id)
                     .Skip(User.Admin!.AdminSettings!.PageOfAnswersOnPopularQuestions * Config.CountMessagesOnPage)
                     .Take(Config.CountMessagesOnPage);
@@ -51,7 +51,7 @@ namespace QATopics.Models.Menu.Implications
             {
                 keyboardBuilder.AddKeyboardButton("⬅");
             }
-            int countSelectedQuestions = User.CurrentQuestion!.Answers.Count;
+            int countSelectedQuestions = User.UserSettings!.CurrentQuestion!.Answers.Count;
             int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
             if (User.Admin!.AdminSettings.PageOfAnswersOnPopularQuestions + 1 < countOfPages)
             {
@@ -64,7 +64,7 @@ namespace QATopics.Models.Menu.Implications
         {
             if (command == "Назад")
             {
-                User.CurrentQuestion = null;
+                User.UserSettings!.CurrentQuestion = null;
                 return new CommandResponse(new PopularQuestionsMenu(this));
             }
             if (command == "⬅")
@@ -77,7 +77,7 @@ namespace QATopics.Models.Menu.Implications
             }
             if (command == "➡")
             {
-                int countSelectedQuestions = User.CurrentQuestion!.Answers.Count;
+                int countSelectedQuestions = User.UserSettings!.CurrentQuestion!.Answers.Count;
                 int countOfPages = countSelectedQuestions / Config.CountMessagesOnPage + 1;
                 if (User.Admin!.AdminSettings!.PageOfAnswersOnPopularQuestions + 1 < countOfPages)
                 {

@@ -87,7 +87,7 @@ namespace QATopics.Models.Menu.Implications
                     {
                         return new CommandResponse(this) { ResultMessage = "Ответ не найден!" };
                     }
-                    User.CurrentAnswer = answer;
+                    User.UserSettings!.CurrentAnswer = answer;
                     return new CommandResponse(new AnswerReportMenu(this));
                 }
                 return null;

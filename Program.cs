@@ -70,6 +70,7 @@ namespace QATopics
             using ApplicationContext db = new ApplicationContext();
             user = db.Users.Where((user) => user.Id == chatId).FirstOrDefault();
             registration = user == null;
+
             //Registration
             if (registration)
             {
@@ -135,7 +136,7 @@ namespace QATopics
                 _ => exception.ToString()
             };
 
-            System.IO.File.AppendAllLines(Config.ExceptionLogFile, ["######################################################", ErrorMessage]);
+            //System.IO.File.AppendAllLines(Config.ExceptionLogFile, ["######################################################", ErrorMessage]);
             Console.WriteLine(ErrorMessage);
             return Task.CompletedTask;
         }

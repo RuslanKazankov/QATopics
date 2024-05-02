@@ -73,6 +73,11 @@ namespace QATopics.Models.Menu.Implications
                     if (ar != null)
                     {
                         ar.Answer!.User!.ReportsCount++;
+                        var userSettings = Db.UserSettings.Where(us => us.CurrentAnswer != null && us.CurrentAnswer.Id == ar.AnswerId);
+                        foreach (var us in userSettings)
+                        {
+                            us.CurrentAnswer = null;
+                        }
                         Db.Answers.Remove(ar.Answer);
                         Db.SaveChanges();
                         return new CommandResponse(this) { ResultMessage = "Жалоба принята" };
@@ -90,12 +95,22 @@ namespace QATopics.Models.Menu.Implications
                     {
                         ar.Answer!.User!.ReportsCount++;
                         ar.Answer.User.Ban = true;
+                        long userIdBan = ar.Answer.UserId;
                         var questions = Db.Questions.Where(q => q.UserId == ar.Answer.UserId);
-                        Db.Questions.RemoveRange(questions);
                         var answers = Db.Answers.Where(a => a.UserId == ar.Answer.UserId);
+                        foreach (var us in Db.UserSettings.Where(us => us.CurrentAnswer != null && us.CurrentAnswer.UserId == ar.Answer.UserId))
+                        {
+                            us.CurrentAnswer = null;
+                        }
+                        foreach (var us in Db.UserSettings.Where(us => us.CurrentQuestion != null && us.CurrentQuestion.UserId == ar.Answer.UserId))
+                        {
+                            us.CurrentQuestion = null;
+                        }
+                        
+                        Db.Questions.RemoveRange(questions);
                         Db.Answers.RemoveRange(answers);
                         Db.SaveChanges();
-                        MessageService?.SendMessageAsync(ar.Answer.UserId, "You have been banned.");
+                        MessageService?.SendMessageAsync(userIdBan, "You have been banned.");
                         return new CommandResponse(this) { ResultMessage = "Пользователь забанен"};
                     }
                     return new CommandResponse(this) { ResultMessage = "Жалоба не найдена" };

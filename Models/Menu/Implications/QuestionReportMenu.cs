@@ -14,11 +14,11 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            if (User.CurrentQuestion != null)
+            if (User.UserSettings!.CurrentQuestion != null)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("Вопрос #").AppendLine(User.CurrentQuestion.Id.ToString())
-                    .Append("Вопрос: ").AppendLine(User.CurrentQuestion.Text);
+                sb.Append("Вопрос #").AppendLine(User.UserSettings!.CurrentQuestion.Id.ToString())
+                    .Append("Вопрос: ").AppendLine(User.UserSettings!.CurrentQuestion.Text);
                 sb.Append("Укажите причину жалобы:");
                 return sb.ToString();
             }
@@ -41,7 +41,7 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(new QuestionsMenu(this));
             }
-            if (User.CurrentQuestion == null)
+            if (User.UserSettings!.CurrentQuestion == null)
             {
                 return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Вопрос не найден" };
             }
@@ -49,9 +49,9 @@ namespace QATopics.Models.Menu.Implications
             {
                 return new CommandResponse(this) { ResultMessage = $"Постарайтесь уместить всю боль в {Config.ReasonMessageLimit} символов" };
             }
-            QuestionReport questionReport = new QuestionReport(User.CurrentQuestion.Id, command);
+            QuestionReport questionReport = new QuestionReport(User.UserSettings!.CurrentQuestion.Id, command);
             Db.QuestionReports.Add(questionReport);
-            User.CurrentQuestion = null;
+            User.UserSettings!.CurrentQuestion = null;
             return new CommandResponse(new QuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
         }
     }

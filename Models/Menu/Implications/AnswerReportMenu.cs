@@ -14,11 +14,11 @@ namespace QATopics.Models.Menu.Implications
     {
         public override string GetMenuText()
         {
-            if (User.CurrentAnswer != null)
+            if (User.UserSettings!.CurrentAnswer != null)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("Ответ #").AppendLine(User.CurrentAnswer.Id.ToString())
-                    .Append("Ответ: ").AppendLine(User.CurrentAnswer.Text);
+                sb.Append("Ответ #").AppendLine(User.UserSettings!.CurrentAnswer.Id.ToString())
+                    .Append("Ответ: ").AppendLine(User.UserSettings!.CurrentAnswer.Text);
                 sb.Append("Укажите причину жалобы:");
                 return sb.ToString();
             }
@@ -37,22 +37,22 @@ namespace QATopics.Models.Menu.Implications
 
         public override CommandResponse? SendCommand(string command)
         {
-            if (User.CurrentAnswer == null)
+            if (User.UserSettings!.CurrentAnswer == null)
             {
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this)) { ResultMessage = "Ответ не найден" };
             }
             if (command == "Назад")
             {
-                User.CurrentAnswer = null;
+                User.UserSettings!.CurrentAnswer = null;
                 return new CommandResponse(new AnswersOnMyQuestionsMenu(this));
             }
             if (command.Length > Config.ReasonMessageLimit)
             {
                 return new CommandResponse(this) { ResultMessage = $"Постарайтесь уместить всю боль в {Config.ReasonMessageLimit} символов" };
             }
-            Db.AnswerReports.Add(new AnswerReport(User.CurrentAnswer.Id, command));
+            Db.AnswerReports.Add(new AnswerReport(User.UserSettings.CurrentAnswer.Id, command));
             Db.SaveChanges();
-            User.CurrentAnswer = null;
+            User.UserSettings!.CurrentAnswer = null;
             return new CommandResponse(new AnswersOnMyQuestionsMenu(this)) { ResultMessage = "Жалоба отправлена" };
         }
     }

@@ -21,10 +21,6 @@ namespace QATopics.Models.Database
         public bool Ban { get; set; }
         public virtual Admin? Admin { get; set; }
         public string CurrentMenu { get; set; }
-        public long? CurrentQuestionId { get; set; }
-        public virtual Question? CurrentQuestion { get; set; }
-        public long? CurrentAnswerId { get; set; }
-        public virtual Answer? CurrentAnswer { get; set; }
         public virtual List<Question> Questions { get; set; } = [];
         public User(long id, string currentMenu, string name = "Аноним")
         {

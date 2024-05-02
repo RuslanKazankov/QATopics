@@ -68,6 +68,10 @@ namespace QATopics.Models.Menu.Implications
                     if (qreport != null)
                     {
                         Db.Users.Where(u => u.Id == qreport.Question!.UserId).FirstOrDefault()!.ReportsCount++;
+                        foreach (var us in Db.UserSettings.Where(us => us.CurrentQuestion != null && us.CurrentQuestion.UserId == qreport.Question.UserId))
+                        {
+                            us.CurrentQuestion = null;
+                        }
                         Db.Questions.Remove(qreport.Question!);
                         Db.SaveChanges();
                         return new CommandResponse(this) { ResultMessage = "Жалоба принята" };
@@ -85,13 +89,22 @@ namespace QATopics.Models.Menu.Implications
                     {
                         qreport.Question!.User!.ReportsCount++;
                         qreport.Question.User.Ban = true;
+                        long userIdBan = qreport.Question.UserId;
                         var questions = Db.Questions.Where(q => q.UserId == qreport.Question.UserId);
                         var answers = Db.Answers.Where(q => q.UserId == qreport.Question.UserId);
+                        foreach (var us in Db.UserSettings.Where(us => us.CurrentAnswer != null && us.CurrentAnswer.UserId == qreport.Question.UserId))
+                        {
+                            us.CurrentAnswer = null;
+                        }
+                        foreach (var us in Db.UserSettings.Where(us => us.CurrentQuestion != null && us.CurrentQuestion.UserId == qreport.Question.UserId))
+                        {
+                            us.CurrentQuestion = null;
+                        }
                         Db.Questions.RemoveRange(questions);
                         Db.Answers.RemoveRange(answers);
                         Db.SaveChanges();
 
-                        MessageService?.SendMessageAsync(qreport.Question.UserId, "You have been banned.");
+                        MessageService?.SendMessageAsync(userIdBan, "You have been banned.");
                         return new CommandResponse(this) { ResultMessage = "Пользователь забанен" };
                     }
                     return new CommandResponse(this) { ResultMessage = "Жалоба не найдена" };

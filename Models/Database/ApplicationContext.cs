@@ -35,18 +35,6 @@ namespace QATopics.Models.Database
                 .HasForeignKey(q => q.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Question>()
-                .HasMany(q => q.CurrentUsers)
-                .WithOne(u => u.CurrentQuestion)
-                .HasForeignKey(u => u.CurrentQuestionId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Answer>()
-                .HasMany(q => q.CurrentUsers)
-                .WithOne(u => u.CurrentAnswer)
-                .HasForeignKey(u => u.CurrentAnswerId)
-                .OnDelete(DeleteBehavior.NoAction);
-
             //UserSettings userSettings = new UserSettings() { Id = 1 };
             //modelBuilder.Entity<UserSettings>().HasData(userSettings);
 

@@ -14,5 +14,9 @@ namespace QATopics.Models.Database
         public virtual User? User { get; set; }
         public int PageOfMyQuestions { get; set; } = 0;
         public int PageOfAnswers{ get; set; } = 0;
+        public long? CurrentQuestionId { get; set; }
+        public virtual Question? CurrentQuestion { get; set; }
+        public long? CurrentAnswerId { get; set; }
+        public virtual Answer? CurrentAnswer { get; set; }
     }
 }
